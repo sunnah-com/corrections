@@ -4,8 +4,28 @@
     </head>
     <body>
         <h1>Interesting things will appear here</h1>
-        {% for correction in Items %}
-        <div><p>{{ correction }}</p></div>
-        {% endfor %}
     </body>
+    <script>
+        function showCorrection(correction) {
+            alert(JSON.stringify(correction))
+        }
+        function getNextCorrection() {
+            fetch('/corrections', {
+                headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `token {{ access_token }}`,
+                },
+            })
+            .then(resp => resp.ok ? resp : function(){throw new Error(`Http status ${resp.status}`)}())
+            .then(resp => resp.json())
+            .then(data => {
+                if (!data || data.length == 0)
+                    alert('no more corrections')
+                else 
+                    showCorrection(data[0])
+            })
+            .catch(err => alert('something went wrong ' + err.message));
+        }
+        getNextCorrection();
+    </script>
 </html>

@@ -46,3 +46,17 @@ A production ready uWSGI daemon (uwsgi socket exposed on port 5001) can be start
 ```bash
 docker-compose -f docker-compose.prod.yml up -d --build
 ```
+
+## Request schema
+
+The request to submit correction should be similar to:
+
+```json
+{
+    "urn": "123",
+    "attr": "matn",
+    "val": "modified matn",
+    "comment": "a damma was missing",
+    "submittedBy": "hasan",
+}
+```

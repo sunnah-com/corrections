@@ -1,4 +1,4 @@
-import functools
+from functools import wraps
 import boto3
 from datetime import datetime, timedelta
 from flask import Flask, jsonify, request, abort, redirect, render_template, make_response
@@ -10,25 +10,38 @@ app.config.from_object('config.Config')
 
 aws_auth = AWSCognitoAuthentication(app)
 
+def ensure_signin(view):
+    @wraps(view)
+    def decorated(*args, **kwargs):
+        access_token = request.cookies.get('access_token')
+        if access_token == None:
+            return redirect('/sign_in')
+
+        return view(access_token, *args, **kwargs)
+    return decorated
+
 @app.route('/', methods=['GET'])
-def home():
-    access_token = request.cookies.get('access_token')
-    if access_token == None:
-        return redirect('/sign_in')
-    
+@ensure_signin
+def home(access_token):
+
+    return render_template('index.html', access_token = access_token)
+
+@app.route('/corrections', methods=['GET'])
+@aws_auth.authentication_required
+def get_correction():
     dynamodb = boto3.resource('dynamodb',
-                              endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
-                              region_name=app.config['REGION'])
+                            endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
+                            region_name=app.config['REGION'])
     table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
-    response = table.scan()
-    return render_template('index.html', Items = response['Items'], access_token = access_token)
+    response = table.scan(Limit = 1)
+    return jsonify(response["Items"])
 
 @app.route('/aws_cognito_redirect')
 def aws_cognito_redirect():
     access_token = aws_auth.get_access_token(request.args)
     response = make_response(redirect('/'))
     expires = datetime.utcnow() + timedelta(minutes=10)
-    response.set_cookie('access_token', access_token, expires=expires)
+    response.set_cookie('access_token', access_token, expires=expires, httponly = True)
     return response
 
 @app.route('/sign_in')

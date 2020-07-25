@@ -1,6 +1,13 @@
 version: '3'
 
 services:
+  mysql-local:
+    image: mysql:5.7.22
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./data:/docker-entrypoint-initdb.d/:ro
+    env_file:
+      - .env.local
   dynamodb-local:
     image: amazon/dynamodb-local:latest
     container_name: dynamodb-local
@@ -14,6 +21,7 @@ services:
   corrections:
     depends_on:
       - "dynamodb-local"
+      - "mysql-local"
     build: .
     command: flask run --host=0.0.0.0
     volumes:

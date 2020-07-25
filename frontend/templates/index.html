@@ -1,31 +1,23 @@
 <html>
     <head>
        Hadith Correction App
+       <script src="https://cdn.jsdelivr.net/npm/vue"></script>      
     </head>
     <body>
         <h1>Interesting things will appear here</h1>
+        <div id="app">
+            <correction-view inline-template token="{{ access_token }}">
+                {% raw %}
+                <div>
+                    {{ message }}
+                    <div v-if="correction != null">
+                        submittedBy: {{ correction.submittedBy }}
+                    </div>
+                </div>
+                {% endraw %}
+            </correction-view>
+        </div>
+
+        <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     </body>
-    <script>
-        function showCorrection(correction) {
-            alert(JSON.stringify(correction))
-        }
-        function getNextCorrection() {
-            fetch('/corrections', {
-                headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `token {{ access_token }}`,
-                },
-            })
-            .then(resp => resp.ok ? resp : function(){throw new Error(`Http status ${resp.status}`)}())
-            .then(resp => resp.json())
-            .then(data => {
-                if (!data || data.length == 0)
-                    alert('no more corrections')
-                else 
-                    showCorrection(data[0])
-            })
-            .catch(err => alert('something went wrong ' + err.message));
-        }
-        getNextCorrection();
-    </script>
 </html>

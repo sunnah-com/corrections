@@ -1,23 +1,26 @@
 <html>
-    <head>
-       Hadith Correction App
-       <script src="https://cdn.jsdelivr.net/npm/vue"></script>      
-    </head>
-    <body>
-        <h1>Interesting things will appear here</h1>
-        <div id="app">
-            <correction-view inline-template token="{{ access_token }}">
-                {% raw %}
-                <div>
-                    {{ message }}
-                    <div v-if="correction != null">
-                        submittedBy: {{ correction.submittedBy }}
-                    </div>
-                </div>
-                {% endraw %}
-            </correction-view>
-        </div>
 
-        <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    </body>
+<head>
+    Hadith Correction App
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+</head>
+
+<body>
+    <h1>Welcome {{ username }}! Interesting things will appear here</h1>
+    <div id="app">
+        <correction-view inline-template token="{{ access_token }}">
+            {% raw %}
+            <div>
+                {{ message }}
+                <div v-if="correction != null">
+                    submittedBy: {{ correction.submittedBy }}
+                </div>
+            </div>
+            {% endraw %}
+        </correction-view>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+
 </html>

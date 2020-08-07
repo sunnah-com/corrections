@@ -26,7 +26,8 @@ def ensure_signin(view):
 @ensure_signin
 def home(access_token):
 
-    return render_template('index.html', access_token=access_token)
+    username = request.cookies.get('username')
+    return render_template('index.html', access_token=access_token, username=username)
 
 
 @app.route('/corrections', methods=['GET'])

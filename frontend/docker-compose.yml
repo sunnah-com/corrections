@@ -8,6 +8,8 @@ services:
       - ./data:/docker-entrypoint-initdb.d/:ro
     env_file:
       - .env.local
+    ports:
+      - "3306:3306"
   dynamodb-local:
     image: amazon/dynamodb-local:latest
     container_name: dynamodb-local

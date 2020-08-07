@@ -77,12 +77,8 @@ def resolve_correction(correction_id):
         return archive_correction(correction_id, username, None, False)
 
     elif action == "approve":
-        dynamodb = boto3.resource('dynamodb',
-            endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
-            region_name=app.config['REGION'])
-        table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
         try:
-            response = table.get_item(Key={'id': str(correction_id)})
+            response = read_correction(correction_id)
             if 'Item' not in response:
                 return jsonify(create_response_message("correction with id " + str(correction_id) + " not found"))
  
@@ -95,10 +91,8 @@ def resolve_correction(correction_id):
                 return jsonify(create_response_message("Failed to update hadith text"))
 
         except ClientError as e:
-            print(e)
             return jsonify(create_response_message(e.response['Error']['Message']))
         except pymysql.Error as error:
-            print(error)
             return jsonify(create_response_message(str(error)))
         except Exception as exception:
             return jsonify(create_response_message("Error - " + str(exception)))
@@ -120,15 +114,28 @@ def save_correction_to_hadith_table(urn, corrected_hadith):
     conn.close()
     return rows_affected
 
+def read_correction(correction_id):
+    dynamodb = boto3.resource('dynamodb',
+            endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
+            region_name=app.config['REGION'])
+    table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
+    return table.get_item(Key={'id': str(correction_id)})
+
+def delete_correction(correction_id, ):
+    dynamodb = boto3.resource('dynamodb',
+        endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
+        region_name=app.config['REGION'])
+    table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
+    return table.delete_item(Key={'id': str(correction_id)})
+
 # Will archive (log) an approved or deleted correction to dynamodb
 def archive_correction(correction_id, username, corrected_hadith=None, approved=False):
     dynamodb = boto3.resource('dynamodb',
                 endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
                 region_name=app.config['REGION'])
-    table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
     archive_table = dynamodb.Table(app.config['DYNAMODB_TABLE_ARCHIVE'])
     try:
-        response = table.get_item(Key={'id': str(correction_id)})
+        response = read_correction(correction_id)
         archive_response = archive_table.put_item(Item={
             'id': response['Item']['id'],
             'urn': response['Item']['urn'],
@@ -140,7 +147,7 @@ def archive_correction(correction_id, username, corrected_hadith=None, approved=
             'modifiedBy': username,
             'approved': approved,
         })
-        response = table.delete_item(Key={'id': str(correction_id)})
+        response = delete_correction(correction_id)
     except ClientError as e:
         return jsonify(create_response_message(e.response['Error']['Message']))
 

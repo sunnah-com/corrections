@@ -10,6 +10,7 @@ app.config.from_object('config.Config')
 
 aws_auth = AWSCognitoAuthentication(app)
 
+
 def ensure_signin(view):
     @wraps(view)
     def decorated(*args, **kwargs):
@@ -20,33 +21,42 @@ def ensure_signin(view):
         return view(access_token, *args, **kwargs)
     return decorated
 
+
 @app.route('/', methods=['GET'])
 @ensure_signin
 def home(access_token):
 
-    return render_template('index.html', access_token = access_token)
+    return render_template('index.html', access_token=access_token)
+
 
 @app.route('/corrections', methods=['GET'])
 @aws_auth.authentication_required
 def get_correction():
     dynamodb = boto3.resource('dynamodb',
-                            endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
-                            region_name=app.config['REGION'])
+                              endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
+                              region_name=app.config['REGION'])
     table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
-    response = table.scan(Limit = 1)
+    response = table.scan(Limit=1)
     return jsonify(response["Items"])
+
 
 @app.route('/aws_cognito_redirect')
 def aws_cognito_redirect():
     access_token = aws_auth.get_access_token(request.args)
     response = make_response(redirect('/'))
     expires = datetime.utcnow() + timedelta(minutes=10)
-    response.set_cookie('access_token', access_token, expires=expires, httponly = True)
+    aws_auth.token_service.verify(access_token)
+    response.set_cookie(
+        'username',  aws_auth.token_service.claims["username"], expires=expires, httponly=True)
+    response.set_cookie('access_token', access_token,
+                        expires=expires, httponly=True)
     return response
+
 
 @app.route('/sign_in')
 def sign_in():
     return redirect(aws_auth.get_sign_in_url())
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

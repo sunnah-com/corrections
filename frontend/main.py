@@ -1,12 +1,15 @@
-from functools import wraps
-import boto3
 from datetime import datetime, timedelta
-from flask import Flask, jsonify, request, abort, redirect, render_template, make_response
-from werkzeug.exceptions import HTTPException
-from flask_awscognito import AWSCognitoAuthentication
-from botocore.exceptions import ClientError
+from functools import wraps
+
+import requests
+
+import boto3
 import pymysql.cursors
-from datetime import datetime
+from botocore.exceptions import ClientError
+from flask import (Flask, jsonify, make_response, redirect, render_template,
+                   request)
+from flask_awscognito import AWSCognitoAuthentication
+from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -19,6 +22,7 @@ mysql_properties = {
     "host": app.config['MYSQL_HOST'],
     "db": app.config['MYSQL_DATABASE']
 }
+
 
 def ensure_signin(view):
     @wraps(view)
@@ -50,6 +54,20 @@ def get_correction():
     return jsonify(response["Items"])
 
 
+@app.route('/hadtihs/<int:urn>', methods=['GET'])
+@aws_auth.authentication_required
+def get_hadith(urn: int):
+    response = requests.get(f"https://api.sunnah.com/v1/hadiths/{urn}", headers={
+        "Content-Type": "application/json",
+        "X-API-KEY": app.config.get("SUNNAH_COM_API_KEY")
+    })
+
+    if response.status_code == 200:
+        return response.content
+    else:
+        return NotFound()
+
+
 @app.route('/aws_cognito_redirect')
 def aws_cognito_redirect():
     access_token = aws_auth.get_access_token(request.args)
@@ -61,6 +79,7 @@ def aws_cognito_redirect():
     response.set_cookie('access_token', access_token,
                         expires=expires, httponly=True)
     return response
+
 
 @app.route('/corrections/<int:correction_id>', methods=['POST'])
 @aws_auth.authentication_required
@@ -81,11 +100,13 @@ def resolve_correction(correction_id):
             response = read_correction(correction_id)
             if 'Item' not in response:
                 return jsonify(create_response_message("correction with id " + str(correction_id) + " not found"))
- 
-            rows_affected = save_correction_to_hadith_table(response['Item']['urn'], corrected_hadith)
+
+            rows_affected = save_correction_to_hadith_table(
+                response['Item']['urn'], corrected_hadith)
 
             if rows_affected == 1:
-                archive_correction(correction_id, username, corrected_hadith, True)
+                archive_correction(correction_id, username,
+                                   corrected_hadith, True)
                 return jsonify(create_response_message("Successfully updated hadith text"))
             else:
                 return jsonify(create_response_message("Failed to update hadith text"))
@@ -100,39 +121,45 @@ def resolve_correction(correction_id):
     else:
         return jsonify(create_response_message("Please provide valid action param 'delete' or 'approve'"))
 
+
 @app.route('/sign_in')
 def sign_in():
     return redirect(aws_auth.get_sign_in_url())
+
 
 def save_correction_to_hadith_table(urn, corrected_hadith):
     conn = pymysql.connect(**mysql_properties)
     cursor = conn.cursor()
     query = "UPDATE bukhari_english SET hadithText = %(hadith_text)s WHERE englishURN = %(urn)s;"
-    cursor.execute(query, { "hadith_text": corrected_hadith, "urn": urn })
+    cursor.execute(query, {"hadith_text": corrected_hadith, "urn": urn})
     rows_affected = cursor.rowcount
     conn.commit()
     conn.close()
     return rows_affected
 
+
 def read_correction(correction_id):
     dynamodb = boto3.resource('dynamodb',
-            endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
-            region_name=app.config['REGION'])
+                              endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
+                              region_name=app.config['REGION'])
     table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
     return table.get_item(Key={'id': str(correction_id)})
 
+
 def delete_correction(correction_id, ):
     dynamodb = boto3.resource('dynamodb',
-        endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
-        region_name=app.config['REGION'])
+                              endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
+                              region_name=app.config['REGION'])
     table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
     return table.delete_item(Key={'id': str(correction_id)})
 
 # Will archive (log) an approved or deleted correction to dynamodb
+
+
 def archive_correction(correction_id, username, corrected_hadith=None, approved=False):
     dynamodb = boto3.resource('dynamodb',
-                endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
-                region_name=app.config['REGION'])
+                              endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
+                              region_name=app.config['REGION'])
     archive_table = dynamodb.Table(app.config['DYNAMODB_TABLE_ARCHIVE'])
     try:
         response = read_correction(correction_id)
@@ -153,8 +180,10 @@ def archive_correction(correction_id, username, corrected_hadith=None, approved=
 
     return jsonify(create_response_message("Success"))
 
+
 def create_response_message(message):
-    return { 'message': message }
+    return {'message': message}
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv('.env.local')
 
+
 class Config(object):
     JSON_SORT_KEYS = False
     DYNAMODB_ENDPOINT_URL = '{DYNAMODB_ENDPOINT_URL}'.format(**os.environ)
@@ -12,7 +13,7 @@ class Config(object):
     AWS_ACCESS_KEY_ID = '{AWS_ACCESS_KEY_ID}'.format(**os.environ)
     AWS_SECRET_ACCESS_KEY = '{AWS_SECRET_ACCESS_KEY}'.format(**os.environ)
     REGION = '{REGION}'.format(**os.environ)
-    
+
     AWS_DEFAULT_REGION = REGION
     AWS_COGNITO_DOMAIN = '{AWS_COGNITO_DOMAIN}'.format(**os.environ)
     AWS_COGNITO_USER_POOL_ID = '{AWS_COGNITO_USER_POOL_ID}'.format(**os.environ)
@@ -24,3 +25,5 @@ class Config(object):
     MYSQL_PASSWORD = '{MYSQL_PASSWORD}'.format(**os.environ)
     MYSQL_HOST = '{MYSQL_HOST}'.format(**os.environ)
     MYSQL_DATABASE = '{MYSQL_DATABASE}'.format(**os.environ)
+
+    SUNNAH_COM_API_KEY = '{SUNNAH_COM_API_KEY}'.format(**os.environ)

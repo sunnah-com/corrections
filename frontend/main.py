@@ -136,7 +136,7 @@ def archive_correction(correction_id, username, corrected_hadith=None, approved=
     archive_table = dynamodb.Table(app.config['DYNAMODB_TABLE_ARCHIVE'])
     try:
         response = read_correction(correction_id)
-        archive_response = archive_table.put_item(Item={
+        archive_table.put_item(Item={
             'id': response['Item']['id'],
             'urn': response['Item']['urn'],
             'attr': response['Item']['attr'],

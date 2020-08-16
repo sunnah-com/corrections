@@ -14,11 +14,11 @@ class Config(object):
     REGION = '{REGION}'.format(**os.environ)
     
     AWS_DEFAULT_REGION = REGION
-    AWS_COGNITO_DOMAIN = 'sunnah.auth.us-west-2.amazoncognito.com'
-    AWS_COGNITO_USER_POOL_ID = 'us-west-2_VwNXYJUAS'
-    AWS_COGNITO_USER_POOL_CLIENT_ID = '5hsoggtqnoh3u78urbt77iuni8'
-    AWS_COGNITO_USER_POOL_CLIENT_SECRET = '8v5bj6d5ng6p9kfocnp6b4puv935dt6u22aj3mvaao66u2grufs'
-    AWS_COGNITO_REDIRECT_URL = 'http://localhost:5000/aws_cognito_redirect'
+    AWS_COGNITO_DOMAIN = '{AWS_COGNITO_DOMAIN}'.format(**os.environ)
+    AWS_COGNITO_USER_POOL_ID = '{AWS_COGNITO_USER_POOL_ID}'.format(**os.environ)
+    AWS_COGNITO_USER_POOL_CLIENT_ID = '{AWS_COGNITO_USER_POOL_CLIENT_ID}'.format(**os.environ)
+    AWS_COGNITO_USER_POOL_CLIENT_SECRET = '{AWS_COGNITO_USER_POOL_CLIENT_SECRET}'.format(**os.environ)
+    AWS_COGNITO_REDIRECT_URL = '{AWS_COGNITO_REDIRECT_URL}'.format(**os.environ)
 
     MYSQL_USER = '{MYSQL_USER}'.format(**os.environ)
     MYSQL_PASSWORD = '{MYSQL_PASSWORD}'.format(**os.environ)

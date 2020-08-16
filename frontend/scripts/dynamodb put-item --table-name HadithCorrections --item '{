@@ -1,0 +1,37 @@
+{
+    "TableDescription": {
+        "AttributeDefinitions": [
+            {
+                "AttributeName": "urn",
+                "AttributeType": "N"
+            },
+            {
+                "AttributeName": "id",
+                "AttributeType": "S"
+            }
+        ],
+        "TableName": "HadithCorrectionsArchive",
+        "KeySchema": [
+            {
+                "AttributeName": "urn",
+                "KeyType": "HASH"
+            },
+            {
+                "AttributeName": "id",
+                "KeyType": "RANGE"
+            }
+        ],
+        "TableStatus": "ACTIVE",
+        "CreationDateTime": "2020-08-15T19:44:58.082000-07:00",
+        "ProvisionedThroughput": {
+            "LastIncreaseDateTime": "1969-12-31T16:00:00-08:00",
+            "LastDecreaseDateTime": "1969-12-31T16:00:00-08:00",
+            "NumberOfDecreasesToday": 0,
+            "ReadCapacityUnits": 5,
+            "WriteCapacityUnits": 5
+        },
+        "TableSizeBytes": 0,
+        "ItemCount": 0,
+        "TableArn": "arn:aws:dynamodb:ddblocal:000000000000:table/HadithCorrectionsArchive"
+    }
+}

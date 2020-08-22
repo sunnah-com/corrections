@@ -1,0 +1,11 @@
+.label {
+    font-weight: bold;
+}
+
+.item {
+    border       : 1px solid #ddd;
+    border-radius: 4px;
+    background   : #eee;
+    padding      : 16px;
+    margin-bottom: 16px;
+}

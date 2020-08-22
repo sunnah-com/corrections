@@ -1,26 +1,87 @@
 <html>
 
 <head>
-    Hadith Correction App
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 </head>
 
 <body>
-    <h1>Welcome {{ username }}! Interesting things will appear here</h1>
-    <div id="app">
-        <correction-view inline-template token="{{ access_token }}">
-            {% raw %}
-            <div>
-                {{ message }}
-                <div v-if="correction != null">
-                    submittedBy: {{ correction.submittedBy }}
-                </div>
-            </div>
-            {% endraw %}
-        </correction-view>
-    </div>
+  <div id="app" class="container">
+    <h1>Hadith Correction App</h1>
+    <h3>Welcome {{ username }}! Interesting things will appear here</h3>
+    <correction-view inline-template token="{{ access_token }}">
+      {% raw %}
+      <div>
+        {{ message }}
 
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+        <div>
+          <div class="row">
+            <div class="col">
+              <div id="#original" class="item">
+                <h3>Original</h3>
+                <p v-if="originalHadith.loading">Loading...</p>
+                <p v-for="error in originalHadith.errors">
+                  {{ error }}
+                </p>
+                <div v-if="originalHadith.data != null">
+                  <span class="label">Collection: </span>{{ originalHadith.data.collection }}
+                  <div class="value">
+                    <textarea class="form-control" name="corrected_hadith" rows="20"
+                      v-model="originalHadith.data.relevantHadith.body"></textarea>
+                  </div>
+                  <input type="hidden" name="action" value="approve" />
+                  <button class="btn btn-primary mt-2" v-on:click="accept">Submit Update</button>
+                  <button class="btn btn-default mt-2" v-on:click="checkDiff">Reload Diff</button>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div id="correction" class="item">
+                <h3>Correction</h3>
+                <p v-if="correction.loading">Loading...</p>
+                <p v-for="error in correction.errors">
+                  {{ error }}
+                </p>
+                <div v-if="correction.data != null">
+                  <span class="label">Collection: </span>{{ correction.data.collection }}
+                  <div class="value">
+                    <span class="label">Value:</span>
+                    <p v-html="correction.data.val"></p>
+                  </div>
+                  <div>
+                    <span class="label">Attribute:</span> {{ correction.data.attr }}
+                  </div>
+                  <div class="comment">
+                    <span class="label">Comment:</span>
+                    <p>{{ correction.data.comment }}</p>
+                  </div>
+                  <div>
+                    <span class="label">Submitted By:</span> {{ correction.data.submittedBy }}
+                  </div>
+                  <button type="button" class="btn btn-danger mt-2" v-on:click="reject">Reject</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+          </div>
+          <div class="row mt-4" v-if="correction.data != null && originalHadith.data != null">
+            <div class="col">
+              <div class="item" v-html="this.diff">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endraw %}
+    </correction-view>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/diff_match_patch.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 
 </html>

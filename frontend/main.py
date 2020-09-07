@@ -67,6 +67,45 @@ def get_hadith(urn: int):
     else:
         return NotFound()
 
+@app.route('/corrections/<int:correction_id>', methods=['POST'])
+@aws_auth.authentication_required
+def resolve_correction(correction_id):
+    data = request.json
+    if 'action' not in data or (data['action'] == 'approve' and 'corrected_value' not in data):
+        return jsonify(create_response_message("Please provide valid action param 'reject' or 'approve' and 'corrected_value' param"))
+
+    action = data['action']
+    username = request.cookies.get('username')
+
+    if action == "reject":
+        return archive_correction(correction_id, username, None, False)
+
+    elif action == "approve":
+        try:
+            corrected_value = data['corrected_value']
+            response = read_correction(correction_id)
+            if 'Item' not in response:
+                return jsonify(create_response_message("correction with id " + str(correction_id) + " not found"))
+
+            rows_affected = save_correction_to_hadith_table(
+                response['Item']['urn'], corrected_value)
+
+            if rows_affected == 1:
+                archive_correction(correction_id, username,
+                                   corrected_value, True)
+                return jsonify(create_response_message("Successfully updated hadith text"))
+            else:
+                return jsonify(create_response_message("Failed to update hadith text"))
+
+        except ClientError as e:
+            return jsonify(create_response_message(e.response['Error']['Message']))
+        except pymysql.Error as error:
+            return jsonify(create_response_message(str(error)))
+        except Exception as exception:
+            return jsonify(create_response_message("Error - " + str(exception)))
+
+    else:
+        return jsonify(create_response_message("Please provide valid action param 'reject' or 'approve'"))
 
 @app.route('/aws_cognito_redirect')
 def aws_cognito_redirect():
@@ -80,58 +119,16 @@ def aws_cognito_redirect():
                         expires=expires, httponly=True)
     return response
 
-
-@app.route('/corrections/<int:correction_id>', methods=['POST'])
-@aws_auth.authentication_required
-def resolve_correction(correction_id):
-    req_data = request.form
-    if 'action' not in req_data and 'corrected_hadith' not in req_data:
-        return jsonify(create_response_message("Please provide valid action param 'delete' or 'approve' and 'corrected_hadith' param"))
-
-    action = req_data['action']
-    corrected_hadith = req_data['corrected_hadith']
-    username = request.cookies.get('username')
-
-    if action == "delete":
-        return archive_correction(correction_id, username, None, False)
-
-    elif action == "approve":
-        try:
-            response = read_correction(correction_id)
-            if 'Item' not in response:
-                return jsonify(create_response_message("correction with id " + str(correction_id) + " not found"))
-
-            rows_affected = save_correction_to_hadith_table(
-                response['Item']['urn'], corrected_hadith)
-
-            if rows_affected == 1:
-                archive_correction(correction_id, username,
-                                   corrected_hadith, True)
-                return jsonify(create_response_message("Successfully updated hadith text"))
-            else:
-                return jsonify(create_response_message("Failed to update hadith text"))
-
-        except ClientError as e:
-            return jsonify(create_response_message(e.response['Error']['Message']))
-        except pymysql.Error as error:
-            return jsonify(create_response_message(str(error)))
-        except Exception as exception:
-            return jsonify(create_response_message("Error - " + str(exception)))
-
-    else:
-        return jsonify(create_response_message("Please provide valid action param 'delete' or 'approve'"))
-
-
 @app.route('/sign_in')
 def sign_in():
     return redirect(aws_auth.get_sign_in_url())
 
 
-def save_correction_to_hadith_table(urn, corrected_hadith):
+def save_correction_to_hadith_table(urn, corrected_value):
     conn = pymysql.connect(**mysql_properties)
     cursor = conn.cursor()
     query = "UPDATE bukhari_english SET hadithText = %(hadith_text)s WHERE englishURN = %(urn)s;"
-    cursor.execute(query, {"hadith_text": corrected_hadith, "urn": urn})
+    cursor.execute(query, {"hadith_text": corrected_value, "urn": urn})
     rows_affected = cursor.rowcount
     conn.commit()
     conn.close()
@@ -145,29 +142,29 @@ def read_correction(correction_id):
     table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
     return table.get_item(Key={'id': str(correction_id)})
 
-
-def delete_correction(correction_id, ):
+def delete_correction(correction_id):
     dynamodb = boto3.resource('dynamodb',
                               endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
                               region_name=app.config['REGION'])
     table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
     return table.delete_item(Key={'id': str(correction_id)})
 
-# Will archive (log) an approved or deleted correction to dynamodb
+# Will archive (log) an approved or rejected correction to dynamodb
 
 
-def archive_correction(correction_id, username, corrected_hadith=None, approved=False):
+def archive_correction(correction_id, username, corrected_value=None, approved=False):
     dynamodb = boto3.resource('dynamodb',
                               endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
                               region_name=app.config['REGION'])
     archive_table = dynamodb.Table(app.config['DYNAMODB_TABLE_ARCHIVE'])
     try:
         response = read_correction(correction_id)
+
         archive_table.put_item(Item={
             'id': response['Item']['id'],
             'urn': response['Item']['urn'],
             'attr': response['Item']['attr'],
-            'val': response['Item']['val'] if not corrected_hadith else corrected_hadith,
+            'val': response['Item']['val'] if not corrected_value else corrected_value,
             'comment': response['Item']['comment'],
             'submittedBy': response['Item']['submittedBy'],
             'modifiedOn': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),

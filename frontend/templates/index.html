@@ -1,6 +1,7 @@
 <html>
 
 <head>
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
@@ -20,57 +21,55 @@
         <div>
           <div class="row">
             <div class="col">
-              <div id="#original" class="item">
-                <h3>Original</h3>
-                <p v-if="originalHadith.loading">Loading...</p>
-                <p v-for="error in originalHadith.errors">
-                  {{ error }}
-                </p>
-                <div v-if="originalHadith.data != null">
-                  <span class="label">Collection: </span>{{ originalHadith.data.collection }}
-                  <div class="value">
-                    <textarea class="form-control" name="corrected_hadith" rows="20"
-                      v-model="originalHadith.data.relevantHadith.body"></textarea>
-                  </div>
-                  <input type="hidden" name="action" value="approve" />
-                  <button class="btn btn-primary mt-2" v-on:click="accept">Submit Update</button>
-                  <button class="btn btn-default mt-2" v-on:click="checkDiff">Reload Diff</button>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div id="correction" class="item">
-                <h3>Correction</h3>
-                <p v-if="correction.loading">Loading...</p>
-                <p v-for="error in correction.errors">
-                  {{ error }}
-                </p>
-                <div v-if="correction.data != null">
-                  <span class="label">Collection: </span>{{ correction.data.collection }}
-                  <div class="value">
-                    <span class="label">Value:</span>
-                    <p v-html="correction.data.val"></p>
-                  </div>
-                  <div>
-                    <span class="label">Attribute:</span> {{ correction.data.attr }}
-                  </div>
-                  <div class="comment">
-                    <span class="label">Comment:</span>
-                    <p>{{ correction.data.comment }}</p>
-                  </div>
-                  <div>
-                    <span class="label">Submitted By:</span> {{ correction.data.submittedBy }}
-                  </div>
-                  <button type="button" class="btn btn-danger mt-2" v-on:click="reject">Reject</button>
-                </div>
-              </div>
+              <p v-if="loading">Loading...</p>
             </div>
           </div>
           <div class="row">
-          </div>
-          <div class="row mt-4" v-if="correction.data != null && originalHadith.data != null">
             <div class="col">
-              <div class="item" v-html="this.diff">
+              <p v-for="error in errors">
+                {{ error }}
+              </p>
+            </div>
+          </div>
+          <div class="row" v-if="correction != null">
+            <div class="col">
+              <div id="correction" class="item">
+                <h3>Correction</h3>
+                <div>
+                  <span class="label">Collection: </span>
+                  <span v-if="originalHadith">{{ originalHadith.collection }}</span>
+                  <div>
+                    <span class="label">Attribute:</span> {{ correction.attr }}
+                  </div>
+                  <div class="comment">
+                    <span class="label">Comment:</span>
+                    <p>{{ correction.comment }}</p>
+                  </div>
+                  <div>
+                    <span class="label">Submitted By:</span> {{ correction.submittedBy }}
+                  </div>
+                  <div class="value">
+                    <span class="label">Value:</span>
+                    <textarea @input="checkDiff" class="form-control" name="corrected_value" rows="10"
+                      v-model="correction.val"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="item" v-if="correction != null && originalHadith != null">
+                <h3>Diff</h3>
+                <div v-html="this.diff">
+                </div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="item" v-if="correction != null && originalHadith != null">
+                <h3>Preview</h3>
+                <div v-html="correction.val">
+                </div>
+                <button class="btn btn-primary mt-2" v-on:click="accept">Accept</button>
+                <button type="button" class="btn btn-danger mt-2" v-on:click="reject">Reject</button>
               </div>
             </div>
           </div>

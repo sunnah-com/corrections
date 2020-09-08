@@ -72,7 +72,7 @@ def get_hadith(urn: int):
 def resolve_correction(correction_id):
     data = request.json
     if 'action' not in data or (data['action'] == 'approve' and 'corrected_value' not in data):
-        return jsonify(create_response_message("Please provide valid action param 'reject' or 'approve' and 'corrected_value' param"))
+        return jsonify(create_response_message(False, "Please provide valid action param 'reject' or 'approve' and 'corrected_value' param"))
 
     action = data['action']
     username = request.cookies.get('username')
@@ -85,7 +85,7 @@ def resolve_correction(correction_id):
             corrected_value = data['corrected_value']
             response = read_correction(correction_id)
             if 'Item' not in response:
-                return jsonify(create_response_message("correction with id " + str(correction_id) + " not found"))
+                return jsonify(create_response_message(False, "correction with id " + str(correction_id) + " not found"))
 
             rows_affected = save_correction_to_hadith_table(
                 response['Item']['urn'], corrected_value)
@@ -93,19 +93,19 @@ def resolve_correction(correction_id):
             if rows_affected == 1:
                 archive_correction(correction_id, username,
                                    corrected_value, True)
-                return jsonify(create_response_message("Successfully updated hadith text"))
+                return jsonify(create_response_message(True, "Successfully updated hadith text"))
             else:
-                return jsonify(create_response_message("Failed to update hadith text"))
+                return jsonify(create_response_message(False, "Failed to update hadith text"))
 
         except ClientError as e:
-            return jsonify(create_response_message(e.response['Error']['Message']))
+            return jsonify(create_response_message(False, e.response['Error']['Message']))
         except pymysql.Error as error:
-            return jsonify(create_response_message(str(error)))
+            return jsonify(create_response_message(False, str(error)))
         except Exception as exception:
-            return jsonify(create_response_message("Error - " + str(exception)))
+            return jsonify(create_response_message(False, "Error - " + str(exception)))
 
     else:
-        return jsonify(create_response_message("Please provide valid action param 'reject' or 'approve'"))
+        return jsonify(create_response_message(False, "Please provide valid action param 'reject' or 'approve'"))
 
 @app.route('/aws_cognito_redirect')
 def aws_cognito_redirect():
@@ -173,13 +173,16 @@ def archive_correction(correction_id, username, corrected_value=None, approved=F
         })
         response = delete_correction(correction_id)
     except ClientError as e:
-        return jsonify(create_response_message(e.response['Error']['Message']))
+        return jsonify(create_response_message(False, e.response['Error']['Message']))
 
-    return jsonify(create_response_message("Success"))
+    return jsonify(create_response_message(True, "Success"))
 
 
-def create_response_message(message):
-    return {'message': message}
+def create_response_message(success, message):
+    return {
+        'success': success,
+        'message': message
+    }
 
 
 if __name__ == '__main__':

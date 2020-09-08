@@ -91,12 +91,14 @@ Vue.component("correction-view", {
     },
     accept: async function () {
       try {
-        await this.fetchJsonData(`/corrections/${this.correction.id}`, {
+        const result = await this.fetchJsonData(`/corrections/${this.correction.id}`, {
           action: 'approve',
           corrected_value: this.correction.val
         });
-        this.message = 'accepted the correction';
-        this.loadNextCorrection();
+        this.message = result.message;
+        if (result.success) {
+          this.loadNextCorrection();
+        }
       }
       catch (err) {
         this.errors.push(err.message);
@@ -104,11 +106,13 @@ Vue.component("correction-view", {
     },
     reject: async function () {
       try {
-        await this.fetchJsonData(`/corrections/${this.correction.id}`, {
+        const result = await this.fetchJsonData(`/corrections/${this.correction.id}`, {
           action: 'reject'
         });
-        this.message = 'rejected the correction'
-        this.loadNextCorrection();
+        this.message = result.message
+        if (result.success) {
+          this.loadNextCorrection();
+        }
       }
       catch (err) {
         this.errors.push(err.message);

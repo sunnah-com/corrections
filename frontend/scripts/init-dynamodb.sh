@@ -1,22 +1,14 @@
-aws dynamodb delete-table --table HadithCorrections \
-   --endpoint-url http://localhost:8000 \
-   --region localhost
-
-aws dynamodb delete-table --table HadithCorrectionsArchive \
-   --endpoint-url http://localhost:8000 \
-   --region localhost
-
 aws dynamodb create-table --table-name HadithCorrections \
    --attribute-definitions AttributeName=id,AttributeType=S \
    --key-schema AttributeName=id,KeyType=HASH \
    --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
-   --endpoint-url http://localhost:8000 --region localhost
+   --endpoint-url http://dynamodb-local:8000 --region us-west-2
 
 aws dynamodb create-table --table-name HadithCorrectionsArchive \
    --attribute-definitions AttributeName=urn,AttributeType=S AttributeName=id,AttributeType=S \
    --key-schema AttributeName=urn,KeyType=HASH AttributeName=id,KeyType=RANGE \
    --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
-   --endpoint-url http://localhost:8000 --region localhost
+   --endpoint-url http://dynamodb-local:8000 --region us-west-2
 
 aws dynamodb put-item --table-name HadithCorrections --item '{
    "id":{
@@ -40,7 +32,7 @@ aws dynamodb put-item --table-name HadithCorrections --item '{
    "submittedBy":{
       "S":"someone@example.com"
    }
-}' --endpoint-url http://localhost:8000 --region localhost
+}' --endpoint-url http://dynamodb-local:8000 --region us-west-2
 
 aws dynamodb put-item --table-name HadithCorrectionsArchive --item '{
    "id":{
@@ -70,4 +62,4 @@ aws dynamodb put-item --table-name HadithCorrectionsArchive --item '{
    "moderatedBy":{
       "S":"rootuser"
    }
-}' --endpoint-url http://localhost:8000 --region localhost
+}' --endpoint-url http://dynamodb-local:8000 --region us-west-2

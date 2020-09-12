@@ -13,19 +13,14 @@ services:
   dynamodb-local:
     image: amazon/dynamodb-local:latest
     container_name: dynamodb-local
-    environment:
-      - ./Djava.library.path=./DynamoDBLocal_lib
     ports:
       - "8000:8000"
-    volumes:
-      - ./data:/home/dynamodblocal/data/:rw
-    command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-dbPath", "./data"]
   corrections:
     depends_on:
       - "dynamodb-local"
       - "mysql-local"
     build: .
-    command: flask run --host=0.0.0.0
+    command: bash -c "./scripts/init-dynamodb.sh && flask run --host=0.0.0.0"
     volumes:
       - .:/code
     ports:

@@ -40,17 +40,22 @@ def ensure_signin(view):
 def home(access_token):
 
     username = request.cookies.get('username')
-    return render_template('index.html', access_token=access_token, username=username)
+    return render_template('index.html', access_token=access_token, username=username, queue_name='global')
 
 
-@app.route('/corrections', methods=['GET'])
+@app.route('/corrections/<string:queue_name>', methods=['GET'])
 @aws_auth.authentication_required
-def get_correction():
+def get_correction(queue_name):
     dynamodb = boto3.resource('dynamodb',
                               endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
                               region_name=app.config['REGION'])
     table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
-    response = table.scan(Limit=1)
+    response = table.query(
+        ExpressionAttributeValues={
+            ':v1': queue_name
+        },
+        KeyConditionExpression="queue = :v1",
+        Limit=1)
     return jsonify(response["Items"])
 
 
@@ -67,9 +72,10 @@ def get_hadith(urn: int):
     else:
         return NotFound()
 
-@app.route('/corrections/<int:correction_id>', methods=['POST'])
+
+@app.route('/corrections/<string:queue_name>/<int:correction_id>', methods=['POST'])
 @aws_auth.authentication_required
-def resolve_correction(correction_id):
+def resolve_correction(queue_name, correction_id):
     data = request.json
     if 'action' not in data or (data['action'] == 'approve' and 'corrected_value' not in data):
         return jsonify(create_response_message(False, "Please provide valid action param 'reject' or 'approve' and 'corrected_value' param"))
@@ -78,12 +84,12 @@ def resolve_correction(correction_id):
     username = request.cookies.get('username')
 
     if action == "reject":
-        return archive_correction(correction_id, username, None, False)
+        return archive_correction(queue_name, correction_id, username, None, False)
 
     elif action == "approve":
         try:
             corrected_value = data['corrected_value']
-            response = read_correction(correction_id)
+            response = read_correction(queue_name, correction_id)
             if 'Item' not in response:
                 return jsonify(create_response_message(False, "correction with id " + str(correction_id) + " not found"))
 
@@ -91,7 +97,7 @@ def resolve_correction(correction_id):
                 response['Item']['urn'], corrected_value)
 
             if rows_affected == 1:
-                archive_correction(correction_id, username,
+                archive_correction(queue_name, correction_id, username,
                                    corrected_value, True)
                 return jsonify(create_response_message(True, "Successfully updated hadith text"))
             else:
@@ -107,6 +113,7 @@ def resolve_correction(correction_id):
     else:
         return jsonify(create_response_message(False, "Please provide valid action param 'reject' or 'approve'"))
 
+
 @app.route('/aws_cognito_redirect')
 def aws_cognito_redirect():
     access_token = aws_auth.get_access_token(request.args)
@@ -118,6 +125,7 @@ def aws_cognito_redirect():
     response.set_cookie('access_token', access_token,
                         expires=expires, httponly=True)
     return response
+
 
 @app.route('/sign_in')
 def sign_in():
@@ -135,32 +143,34 @@ def save_correction_to_hadith_table(urn, corrected_value):
     return rows_affected
 
 
-def read_correction(correction_id):
+def read_correction(queue_name, correction_id):
     dynamodb = boto3.resource('dynamodb',
                               endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
                               region_name=app.config['REGION'])
     table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
-    return table.get_item(Key={'id': str(correction_id)})
+    return table.get_item(Key={'queue': queue_name, 'id': str(correction_id)})
 
-def delete_correction(correction_id):
+
+def delete_correction(queue_name, correction_id):
     dynamodb = boto3.resource('dynamodb',
                               endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
                               region_name=app.config['REGION'])
     table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
-    return table.delete_item(Key={'id': str(correction_id)})
+    return table.delete_item(Key={'queue': queue_name, 'id': str(correction_id)})
 
 # Will archive (log) an approved or rejected correction to dynamodb
 
 
-def archive_correction(correction_id, username, corrected_value=None, approved=False):
+def archive_correction(queue_name, correction_id, username, corrected_value=None, approved=False):
     dynamodb = boto3.resource('dynamodb',
                               endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
                               region_name=app.config['REGION'])
     archive_table = dynamodb.Table(app.config['DYNAMODB_TABLE_ARCHIVE'])
     try:
-        response = read_correction(correction_id)
+        response = read_correction(queue_name, correction_id)
 
         archive_table.put_item(Item={
+            'queue': response['Item']['queue'],
             'id': response['Item']['id'],
             'urn': response['Item']['urn'],
             'attr': response['Item']['attr'],
@@ -171,7 +181,7 @@ def archive_correction(correction_id, username, corrected_value=None, approved=F
             'modifiedBy': username,
             'approved': approved,
         })
-        response = delete_correction(correction_id)
+        response = delete_correction(queue_name, correction_id)
     except ClientError as e:
         return jsonify(create_response_message(False, e.response['Error']['Message']))
 

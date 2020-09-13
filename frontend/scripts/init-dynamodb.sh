@@ -1,6 +1,6 @@
 aws dynamodb create-table --table-name HadithCorrections \
-   --attribute-definitions AttributeName=id,AttributeType=S \
-   --key-schema AttributeName=id,KeyType=HASH \
+   --attribute-definitions AttributeName=queue,AttributeType=S AttributeName=id,AttributeType=S \
+   --key-schema AttributeName=queue,KeyType=HASH AttributeName=id,KeyType=RANGE \
    --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
    --endpoint-url http://dynamodb-local:8000 --region us-west-2
 
@@ -11,6 +11,9 @@ aws dynamodb create-table --table-name HadithCorrectionsArchive \
    --endpoint-url http://dynamodb-local:8000 --region us-west-2
 
 aws dynamodb put-item --table-name HadithCorrections --item '{
+   "queue":{
+      "S":"global"
+   },
    "id":{
       "S":"123"
    },
@@ -37,7 +40,40 @@ aws dynamodb put-item --table-name HadithCorrections --item '{
    }
 }' --endpoint-url http://dynamodb-local:8000 --region us-west-2
 
+aws dynamodb put-item --table-name HadithCorrections --item '{
+   "queue":{
+      "S":"global"
+   },
+   "id":{
+      "S":"123"
+   },
+   "urn":{
+      "S":"20"
+   },
+   "attr":{
+      "S":"body"
+   },
+   "val":{
+      "S":"<p>Narrated ''Aisha:<p>(the mother of the faithful believers) Al-Harith bin Hisham asked Allah''s Apostle \"O Allah''s Apostle! How is the Divine Inspiration revealed to you?\" Allah''s Apostle replied, \"Sometimes it is (revealed) like the ringing of a bell, this form of Inspiration is the hardest of all and then this state passes off after I have grasped what is inspired. Sometimes the Angel comes in the form of a man and talks to me and I grasp whatever he says.\" ''Aisha added: Verily I saw the Prophet being inspired divinely on a very cold day and noticed the sweat dropping from his forehead (as the Inspiration was over).\r\n<p>"
+   },
+   "lang": {
+      "S": "en"
+   },
+   "queue": {
+      "S": "secondary"
+   },
+   "comment":{
+      "S":"Fixed formatting"
+   },
+   "submittedBy":{
+      "S":"someone@example.com"
+   }
+}' --endpoint-url http://dynamodb-local:8000 --region us-west-2
+
 aws dynamodb put-item --table-name HadithCorrectionsArchive --item '{
+   "queue":{
+      "S":"global"
+   },
    "id":{
       "S":"1"
    },

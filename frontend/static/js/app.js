@@ -1,11 +1,12 @@
 Vue.component("correction-view", {
-  props: ["token"],
+  props: ["token", "queue"],
   data: function () {
     return {
       message: "",
       errors: [],
       correction: null,
       originalHadith: null,
+      queueName: this.queue,
       diff: null,
     };
   },
@@ -65,9 +66,12 @@ Vue.component("correction-view", {
     loadNextCorrection: async function () {
       this.reset();
       try {
-        const result = await this.fetchJsonData("/corrections");
-        if (!result || result.length == 0) this.message = "No more corrections";
+        const result = await this.fetchJsonData(`/corrections/${this.queueName}`);
+        if (!result || result.length == 0) {
+          this.message = "No more corrections";
+        }
         else {
+          this.message = null;
           this.correction = result[0];
         }
       }
@@ -98,9 +102,13 @@ Vue.component("correction-view", {
         this.correction.val
       )).replaceAll('&para;<br>', '<br/>');
     },
+    changeQueue: function(queueName) {
+      this.queueName = queueName;
+      this.loadNextCorrection();
+    },
     accept: async function () {
       try {
-        const result = await this.fetchJsonData(`/corrections/${this.correction.id}`, {
+        const result = await this.fetchJsonData(`/corrections/${this.queueName}/${this.correction.id}`, {
           action: 'approve',
           corrected_value: this.correction.val
         });
@@ -115,7 +123,7 @@ Vue.component("correction-view", {
     },
     reject: async function () {
       try {
-        const result = await this.fetchJsonData(`/corrections/${this.correction.id}`, {
+        const result = await this.fetchJsonData(`/corrections/${this.queueName}/${this.correction.id}`, {
           action: 'reject'
         });
         this.message = result.message

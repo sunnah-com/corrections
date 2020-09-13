@@ -19,9 +19,13 @@ Vue.component("correction-view", {
       !this.loading &&
       this.errors.length === 0
     ) {
-      let correction = this.correction;
-      await this.loadOriginalHadith(correction.urn);
-      this.checkDiff();
+      await this.downloadHadith(this.correction.urn);
+      if (this.correction.val) {
+        this.checkDiff();
+      }
+      else {
+        this.loadOriginal();
+      }
     }
   },
   methods: {
@@ -32,41 +36,48 @@ Vue.component("correction-view", {
       this.originalHadith = null;
       this.diff = null;
     },
+    loadOriginal: function () {
+      if (this.correction && this.correction.attr && this.originalHadith) {
+        this.correction.val = this.originalHadith[this.correction.attr];
+      }
+      this.checkDiff();
+    },
     fetchJsonData: async function (url, body) {
-      const resp = await fetch(url, {
-        method: body ? "POST" : "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `token ${this.token}`,
-        },
-        body: body ? JSON.stringify(body) : null
-      })
-      if (resp.ok) {
-        return resp.json();
+      this.loading = true;
+      try {
+        const resp = await fetch(url, {
+          method: body ? "POST" : "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `token ${this.token}`,
+          },
+          body: body ? JSON.stringify(body) : null
+        })
+        if (resp.ok) {
+          return resp.json();
+        }
+      }
+      finally {
+        this.loading = false;
       }
       throw new Error(`Http status ${resp.status}`);
     },
     loadNextCorrection: async function () {
       this.reset();
-      this.loading = true;
       try {
         const result = await this.fetchJsonData("/corrections");
-        this.loading = false;
         if (!result || result.length == 0) this.message = "No more corrections";
         else {
           this.correction = result[0];
         }
       }
       catch (err) {
-        this.loading = false;
         this.errors.push("Error loading correction.");
       }
     },
-    loadOriginalHadith: async function (hadithUrn) {
-      this.loading = true;
+    downloadHadith: async function (hadithUrn) {
       try {
         const result = await this.fetchJsonData("/hadtihs/" + hadithUrn);
-        this.loading = false;
         if (result && result.length != 0) {
           for (var i = 0; i < result.hadith.length; i++) {
             if (result.hadith[i].lang === this.correction.lang) {
@@ -78,16 +89,14 @@ Vue.component("correction-view", {
       }
       catch (err) {
         this.errors.push("Error loading Hadith.");
-        this.loading = false;
       }
     },
     checkDiff: function () {
       const dmp = new diff_match_patch();
-      const diff = dmp.diff_main(
+      this.diff = dmp.diff_prettyHtml(dmp.diff_main(
         this.originalHadith.body,
         this.correction.val
-      );
-      this.diff = dmp.diff_prettyHtml(diff);
+      )).replaceAll('&para;<br>', '<br/>');
     },
     accept: async function () {
       try {

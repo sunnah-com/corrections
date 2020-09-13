@@ -9,7 +9,7 @@ services:
     env_file:
       - .env.local
     ports:
-      - "3306:3306"
+      - "3406:3306"
   dynamodb-local:
     image: amazon/dynamodb-local:latest
     container_name: dynamodb-local
@@ -24,6 +24,6 @@ services:
     volumes:
       - .:/code
     ports:
-      - "5000:5000"
+      - "5500:5000"
     env_file:
       - .env.local

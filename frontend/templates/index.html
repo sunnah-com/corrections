@@ -12,7 +12,7 @@
 <body>
   <div id="app" class="container">
     <h1>Hadith Correction App</h1>
-    <h3>Welcome {{ username }}! Interesting things will appear here</h3>
+    <h3>Welcome {{ username }}!</h3>
     <correction-view inline-template token="{{ access_token }}">
       {% raw %}
       <div>
@@ -52,6 +52,9 @@
                     <span class="label">Value:</span>
                     <textarea @input="checkDiff" class="form-control" name="corrected_value" rows="10"
                       v-model="correction.val"></textarea>
+                  </div>
+                  <div>
+                    <button class="btn btn-secondary mt-2" v-on:click="loadOriginal">Load Original</button>
                   </div>
                 </div>
               </div>

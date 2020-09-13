@@ -31,21 +31,19 @@ docker-compose up
 * Use `--build` option to re-build.
 * Use the `-d` option to run in detached mode.
 
-You can then visit [localhost:5000](http://localhost:5000) to verify that it's running on your machine. Or, alternatively:
-
-```bash
-$ curl http://localhost:5000
-```
+You can then visit [localhost:5500](http://localhost:5500) to verify that it's running on your machine.
 
 ## Deployment
 
 Configuration files are located at `env.local` and `uwsgi.ini`.
 
-A production ready uWSGI daemon (uwsgi socket exposed on port 5001) can be started with:
+A production ready uWSGI daemon (uwsgi socket exposed on port 5500) can be started with:
 
 ```bash
 docker-compose -f docker-compose.prod.yml up -d --build
 ```
+
+The production backend is deployed at https://v2wbs8odf4.execute-api.us-west-2.amazonaws.com
 
 ## Request schema
 
@@ -54,9 +52,11 @@ The request to submit correction should be similar to:
 ```json
 {
     "urn": "123",
-    "attr": "matn",
-    "val": "modified matn",
-    "comment": "a damma was missing",
-    "submittedBy": "hasan",
+    "attr": "body",
+    "val": "modified body text here",
+    "lang": "en",
+    "comment": "fixed spelling",
+    "queue": "global",
+    "submittedBy": "someone@example.com",
 }
 ```

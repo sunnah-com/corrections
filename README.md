@@ -43,7 +43,7 @@ A production ready uWSGI daemon (uwsgi socket exposed on port 5500) can be start
 docker-compose -f docker-compose.prod.yml up -d --build
 ```
 
-The production backend is deployed at https://v2wbs8odf4.execute-api.us-west-2.amazonaws.com
+The production backend is deployed at https://l7jwlmg0h3.execute-api.us-west-2.amazonaws.com/prod
 
 ## Request schema
 
@@ -60,3 +60,7 @@ The request to submit correction should be similar to:
     "submittedBy": "someone@example.com",
 }
 ```
+
+## How to get api key
+
+You will need an API key to access this data, which you may request by [creating an issue](https://github.com/sunnah-com/api/issues/new?template=request-for-api-access.md&title=Request+for+API+access%3A+%5BYour+Name%5D) on our GitHub repo.

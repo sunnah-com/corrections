@@ -24,7 +24,7 @@ aws dynamodb put-item --table-name HadithCorrections --item '{
       "S":"body"
    },
    "val":{
-      "S":"<p>Narrated Umar bin Al-Khattab:</p><p>I heard Allah''s Messenger (ﷺ) saying, \"The reward of deeds depends upon the  intentions and every person will get the reward according to what he has intended. So whoever emigrated for worldly benefits or for a woman to marry, his emigration was for what he emigrated for.\"</p>"
+      "S":"Narrated Umar bin Al-Khattab:<p>I heard Allah''s Messenger (ﷺ) saying, \"The reward of deeds depends upon the  intentions and every person will get the reward according to what he has intended. So whoever emigrated for worldly benefits or for a woman to marry, his emigration was for what he emigrated for.\"</p>"
    },
    "lang": {
       "S": "en"

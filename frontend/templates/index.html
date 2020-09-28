@@ -34,6 +34,7 @@
                 <div class="dropdown-menu" aria-labelledby="queueDropdown">
                   <a class="dropdown-item" href="#" v-on:click="changeQueue('global')">global</a>
                   <a class="dropdown-item" href="#" v-on:click="changeQueue('secondary')">secondary</a>
+                  <a class="dropdown-item" href="#" v-on:click="changeQueue('skipped')">skipped</a>
                 </div>
               </div>
             </div>            
@@ -80,6 +81,7 @@
                 </div>
                 <button class="btn btn-primary mt-2" v-on:click="accept">Accept</button>
                 <button type="button" class="btn btn-danger mt-2" v-on:click="reject">Reject</button>
+                <button v-if="queueName != 'skipped'" type="button" class="btn btn-info mt-2" v-on:click="skip">Skip</button>
               </div>
             </div>
           </div>

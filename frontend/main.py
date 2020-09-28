@@ -78,7 +78,7 @@ def get_hadith(urn: int):
 def resolve_correction(queue_name, correction_id):
     data = request.json
     if 'action' not in data or (data['action'] == 'approve' and 'corrected_value' not in data):
-        return jsonify(create_response_message(False, "Please provide valid action param 'reject' or 'approve' and 'corrected_value' param"))
+        return jsonify(create_response_message(False, "Please provide valid action param 'reject', 'skip', or 'approve' and 'corrected_value' param"))
 
     action = data['action']
     username = request.cookies.get('username')
@@ -87,31 +87,13 @@ def resolve_correction(queue_name, correction_id):
         return archive_correction(queue_name, correction_id, username, None, False)
 
     elif action == "approve":
-        try:
-            corrected_value = data['corrected_value']
-            response = read_correction(queue_name, correction_id)
-            if 'Item' not in response:
-                return jsonify(create_response_message(False, "correction with id " + str(correction_id) + " not found"))
+        return approve_correction(queue_name, correciont_id, username, data['corrected_value'])
 
-            rows_affected = save_correction_to_hadith_table(
-                response['Item']['urn'], corrected_value)
-
-            if rows_affected == 1:
-                archive_correction(queue_name, correction_id, username,
-                                   corrected_value, True)
-                return jsonify(create_response_message(True, "Successfully updated hadith text"))
-            else:
-                return jsonify(create_response_message(False, "Failed to update hadith text"))
-
-        except ClientError as e:
-            return jsonify(create_response_message(False, e.response['Error']['Message']))
-        except pymysql.Error as error:
-            return jsonify(create_response_message(False, str(error)))
-        except Exception as exception:
-            return jsonify(create_response_message(False, "Error - " + str(exception)))
+    elif action == "skip":
+        return skip_correction(queue_name, correction_id, username)
 
     else:
-        return jsonify(create_response_message(False, "Please provide valid action param 'reject' or 'approve'"))
+        return jsonify(create_response_message(False, "Please provide valid action param 'reject', 'skip', or 'approve'"))
 
 
 @app.route('/aws_cognito_redirect')
@@ -131,6 +113,29 @@ def aws_cognito_redirect():
 def sign_in():
     return redirect(aws_auth.get_sign_in_url())
 
+def approve_correction(queue_name, correction_id, corrected_value):
+    try:
+        response = read_correction(queue_name, correction_id)
+        if 'Item' not in response:
+            return jsonify(create_response_message(False, "correction with id " + str(correction_id) + " not found"))
+
+        rows_affected = save_correction_to_hadith_table(
+            response['Item']['urn'], corrected_value)
+
+        if rows_affected == 1:
+            archive_correction(queue_name, correction_id, username,
+                                corrected_value, True)
+            return jsonify(create_response_message(True, "Successfully updated hadith text"))
+        else:
+            return jsonify(create_response_message(False, "Failed to update hadith text"))
+
+    except ClientError as e:
+        return jsonify(create_response_message(False, e.response['Error']['Message']))
+    except pymysql.Error as error:
+        return jsonify(create_response_message(False, str(error)))
+    except Exception as exception:
+        return jsonify(create_response_message(False, "Error - " + str(exception)))
+
 
 def save_correction_to_hadith_table(urn, corrected_value):
     conn = pymysql.connect(**mysql_properties)
@@ -142,25 +147,31 @@ def save_correction_to_hadith_table(urn, corrected_value):
     conn.close()
     return rows_affected
 
-
-def read_correction(queue_name, correction_id):
+def get_correction_table():
     dynamodb = boto3.resource('dynamodb',
                               endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
                               region_name=app.config['REGION'])
     table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
-    return table.get_item(Key={'queue': queue_name, 'id': str(correction_id)})
+    return table
+
+def read_correction(queue_name, correction_id):
+    return get_correction_table().get_item(Key={'queue': queue_name, 'id': str(correction_id)})
 
 
 def delete_correction(queue_name, correction_id):
-    dynamodb = boto3.resource('dynamodb',
-                              endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
-                              region_name=app.config['REGION'])
-    table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
-    return table.delete_item(Key={'queue': queue_name, 'id': str(correction_id)})
+    return get_correction_table().delete_item(Key={'queue': queue_name, 'id': str(correction_id)})
+
+def skip_correction(queue_name, correction_id, username):
+    response = read_correction(queue_name, correction_id)
+    delete_correction(queue_name, correction_id)
+    try:
+        response['Item']['queue'] = 'skipped'
+        get_correction_table().put_item(Item = response['Item'])
+        return jsonify(create_response_message(True, "Success"))
+    except ClientError as e:
+        return jsonify(create_response_message(False, e.response['Error']['Message']))
 
 # Will archive (log) an approved or rejected correction to dynamodb
-
-
 def archive_correction(queue_name, correction_id, username, corrected_value=None, approved=False):
     dynamodb = boto3.resource('dynamodb',
                               endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],

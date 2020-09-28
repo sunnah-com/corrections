@@ -106,26 +106,22 @@ Vue.component("correction-view", {
       this.queueName = queueName;
       this.loadNextCorrection();
     },
-    accept: async function () {
-      try {
-        const result = await this.fetchJsonData(`/corrections/${this.queueName}/${this.correction.id}`, {
-          action: 'approve',
-          corrected_value: this.correction.val
-        });
-        this.message = result.message;
-        if (result.success) {
-          this.loadNextCorrection();
-        }
-      }
-      catch (err) {
-        this.errors.push(err.message);
-      }
+    accept: function() {
+      this.execAction('approve', {
+      corrected_value: this.correction.val
+    })},      
+    reject: function() { 
+      this.execAction('reject');
     },
-    reject: async function () {
+    skip: function() {
+      this.execAction('skip');
+    },
+    execAction: async function(action, data = {}) {
       try {
-        const result = await this.fetchJsonData(`/corrections/${this.queueName}/${this.correction.id}`, {
-          action: 'reject'
-        });
+        const postData = Object.assign({
+          action: action
+        }, data)
+        const result = await this.fetchJsonData(`/corrections/${this.queueName}/${this.correction.id}`, postData);
         this.message = result.message
         if (result.success) {
           this.loadNextCorrection();
@@ -134,7 +130,7 @@ Vue.component("correction-view", {
       catch (err) {
         this.errors.push(err.message);
       }
-    },
+    }
   },
 });
 

@@ -17,12 +17,13 @@ git clone REPO
 cd REPO
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r frontend/requirements.txt
+cd frontend
 export FLASK_ENV=development FLASK_APP=main.py
 flask run --host=0.0.0.0
 ```
 
-Or alternatively use `docker-compose` which will give a full environment with a MySQL instance loaded with a sample dataset:
+Or alternatively use `docker-compose` inside `frontend` directory which will give a full environment with a MySQL instance loaded with a sample dataset:
 
 ```bash
 docker-compose up

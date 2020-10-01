@@ -43,6 +43,14 @@ def home(access_token):
     return render_template('index.html', access_token=access_token, username=username, queue_name='global')
 
 
+@app.route('/users', methods=['GET'])
+@ensure_signin
+def users(access_token):
+
+    username = request.cookies.get('username')
+    return render_template('users.html', access_token=access_token, username=username)
+
+
 @app.route('/corrections/<string:queue_name>', methods=['GET'])
 @aws_auth.authentication_required
 def get_correction(queue_name):

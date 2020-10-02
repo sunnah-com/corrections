@@ -111,15 +111,15 @@ aws dynamodb put-item --table-name HadithCorrectionsArchive --item '{
 
 aws dynamodb put-item --table-name Users --item '{
     "username":{
-        "S": "ahsan"
+        "S": "guest"
     },
     "permissions":{
         "M":{
-              "manage users": {
+              "manage_users": {
                 "BOOL": true
               },
               "queues":{
-                "SS": ["global", "skip", "secondary"]
+                "SS": ["global", "secondary"]
               }
         }
     }

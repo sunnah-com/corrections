@@ -10,6 +10,12 @@ aws dynamodb create-table --table-name HadithCorrectionsArchive \
    --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
    --endpoint-url http://dynamodb-local:8000 --region us-west-2
 
+aws dynamodb create-table --table-name Users \
+   --attribute-definitions AttributeName=username,AttributeType=S \
+   --key-schema AttributeName=username,KeyType=HASH \
+   --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
+   --endpoint-url http://dynamodb-local:8000 --region us-west-2
+
 aws dynamodb put-item --table-name HadithCorrections --item '{
    "queue":{
       "S":"global"
@@ -101,4 +107,20 @@ aws dynamodb put-item --table-name HadithCorrectionsArchive --item '{
    "moderatedBy":{
       "S":"rootuser"
    }
+}' --endpoint-url http://dynamodb-local:8000 --region us-west-2
+
+aws dynamodb put-item --table-name Users --item '{
+    "username":{
+        "S": "guest"
+    },
+    "permissions":{
+        "M":{
+              "manage_users": {
+                "BOOL": true
+              },
+              "queues":{
+                "SS": ["global", "secondary"]
+              }
+        }
+    }
 }' --endpoint-url http://dynamodb-local:8000 --region us-west-2

@@ -27,3 +27,12 @@ class Config(object):
     MYSQL_DATABASE = '{MYSQL_DATABASE}'.format(**os.environ)
 
     SUNNAH_COM_API_KEY = '{SUNNAH_COM_API_KEY}'.format(**os.environ)
+
+    # Flask Mail 
+    MAIL_DEAFULT_SENDER = '{MAIL_DEAFULT_SENDER}'.format(**os.environ)
+    MAIL_SERVER = '{MAIL_SERVER}'.format(**os.environ)
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
+    MAIL_USERNAME = '{MAIL_USERNAME}'.format(**os.environ)
+    MAIL_PASSWORD = '{MAIL_PASSWORD}'.format(**os.environ)

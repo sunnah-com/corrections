@@ -1,15 +1,15 @@
-from datetime import datetime, timedelta
-from functools import wraps
-
 import requests
-
 import boto3
 import pymysql.cursors
+from datetime import datetime, timedelta
+from functools import wraps
 from botocore.exceptions import ClientError
 from flask import (Flask, jsonify, make_response, redirect, render_template,
                    request)
 from flask_awscognito import AWSCognitoAuthentication
 from werkzeug.exceptions import NotFound
+from extensions import mail
+from lib.mail import EMail
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -205,6 +205,21 @@ def create_response_message(success, message):
         'message': message
     }
 
+
+def extensions(app):
+    """
+    Register 0 or more extensions (mutates the app passed in).
+
+    :param app: Flask application instance
+    :return: None
+    """
+    mail.init_app(app)
+
+    return None
+
+
+with app.app_context():
+    extensions(app)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

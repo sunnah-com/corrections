@@ -12,6 +12,7 @@ ecdsa==0.15
 Flask==1.1.2
 Flask-AWSCognito==1.3
 flask-swagger==0.2.14
+Flask-Mail==0.9.1   
 idna==2.10
 isort==4.3.21
 itsdangerous==1.1.0

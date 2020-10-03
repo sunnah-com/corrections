@@ -1,10 +1,10 @@
+import time
 from datetime import datetime, timedelta
 from functools import wraps
 
-import requests
-
 import boto3
 import pymysql.cursors
+import requests
 from botocore.exceptions import ClientError
 from flask import (Flask, jsonify, make_response, redirect, render_template,
                    request)
@@ -81,7 +81,7 @@ def get_hadith(urn: int):
         return NotFound()
 
 
-@app.route('/corrections/<string:queue_name>/<int:correction_id>', methods=['POST'])
+@app.route('/corrections/<string:queue_name>/<string:correction_id>', methods=['POST'])
 @aws_auth.authentication_required
 def resolve_correction(queue_name, correction_id):
     data = request.json
@@ -95,7 +95,7 @@ def resolve_correction(queue_name, correction_id):
         return archive_correction(queue_name, correction_id, username, None, False)
 
     elif action == "approve":
-        return approve_correction(queue_name, correciont_id, username, data['corrected_value'])
+        return approve_correction(queue_name, correction_id, username, data['corrected_value'])
 
     elif action == "skip":
         return skip_correction(queue_name, correction_id, username)
@@ -121,7 +121,7 @@ def aws_cognito_redirect():
 def sign_in():
     return redirect(aws_auth.get_sign_in_url())
 
-def approve_correction(queue_name, correction_id, corrected_value):
+def approve_correction(queue_name, correction_id, username, corrected_value):
     try:
         response = read_correction(queue_name, correction_id)
         if 'Item' not in response:
@@ -131,8 +131,7 @@ def approve_correction(queue_name, correction_id, corrected_value):
             response['Item']['urn'], corrected_value)
 
         if rows_affected == 1:
-            archive_correction(queue_name, correction_id, username,
-                                corrected_value, True)
+            archive_correction(queue_name, correction_id, username, corrected_value, True)
             return jsonify(create_response_message(True, "Successfully updated hadith text"))
         else:
             return jsonify(create_response_message(False, "Failed to update hadith text"))
@@ -173,7 +172,9 @@ def skip_correction(queue_name, correction_id, username):
     response = read_correction(queue_name, correction_id)
     delete_correction(queue_name, correction_id)
     try:
-        response['Item']['queue'] = 'skipped'
+        # format of id is timestamp:aws_request_id where first part is date and second part is random string
+        aws_request_id = response['Item']['id'].split(':', 1)[1]
+        response['Item']['id'] = f"{time.time()}:{aws_request_id}"
         get_correction_table().put_item(Item = response['Item'])
         return jsonify(create_response_message(True, "Success"))
     except ClientError as e:

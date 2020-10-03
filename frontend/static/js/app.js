@@ -45,8 +45,9 @@ Vue.component("correction-view", {
     },
     fetchJsonData: async function (url, body) {
       this.loading = true;
+      let resp = null;
       try {
-        const resp = await fetch(url, {
+        resp = await fetch(url, {
           method: body ? "POST" : "GET",
           headers: {
             "Content-Type": "application/json",

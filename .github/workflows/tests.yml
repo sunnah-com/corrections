@@ -1,0 +1,15 @@
+name: Tests
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  # Run tests.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Frontend tests
+        working-directory: frontend
+        run: docker-compose --file docker-compose.test.yml up --build

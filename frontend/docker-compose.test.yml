@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  corrections:
+    build:
+      context: ./
+      dockerfile: Dockerfile-test
+    command: pytest
+    volumes:
+      - .:/code

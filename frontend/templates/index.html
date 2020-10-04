@@ -68,6 +68,11 @@
                 <button class="btn btn-primary mt-2" v-on:click="accept">Accept</button>
                 <button type="button" class="btn btn-danger mt-2" v-on:click="reject">Reject</button>
                 <button type="button" class="btn btn-info mt-2" v-on:click="skip">Skip</button>
+                <div class="form-group form-check mt-2">
+                  <input type="checkbox" class="form-check-input" id="checkbox" v-model="addComment" />
+                  <label class="form-check-label" for="checkbox">Add Comment</label>
+                </div>
+                <textarea class="form-control" id="comment" rows="5" v-model="comment" v-if="addComment"></textarea>
               </div>
             </div>
           </div>

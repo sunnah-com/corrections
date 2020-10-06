@@ -67,13 +67,12 @@ Vue.component("correction-view", {
     loadNextCorrection: async function () {
       this.reset();
       try {
-        const result = await this.fetchJsonData(`/corrections/${this.queueName}`);
-        if (!result || result.length == 0) {
+        this.correction = await this.fetchJsonData(`/corrections/${this.queueName}`);
+        if (!this.correction) {
           this.message = "No more corrections";
         }
         else {
           this.message = null;
-          this.correction = result[0];
         }
       }
       catch (err) {

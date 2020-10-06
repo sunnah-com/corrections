@@ -55,7 +55,7 @@ aws dynamodb put-item --table-name HadithCorrections --item '{
       "S":"global"
    },
    "id":{
-      "S":"123.abcdef100"
+      "S":"123:abcdef100"
    },
    "urn":{
       "S":"20"

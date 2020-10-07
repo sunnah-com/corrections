@@ -1,10 +1,10 @@
-Vue.component("correction-view", {
-  props: ["token", "queue"],
+Vue.component('correction-view', {
+  props: ['token', 'queue'],
   data: function () {
     return {
-      message: "",
+      message: '',
       errors: [],
-      correction: null,
+      correction: '',
       originalHadith: null,
       queueName: this.queue,
       diff: null,
@@ -52,9 +52,9 @@ Vue.component("correction-view", {
       let resp = null;
       try {
         resp = await fetch(url, {
-          method: body ? "POST" : "GET",
+          method: body ? 'POST' : 'GET',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `token ${this.token}`,
           },
           body: body ? JSON.stringify(body) : null
@@ -73,19 +73,19 @@ Vue.component("correction-view", {
       try {
         this.correction = await this.fetchJsonData(`/corrections/${this.queueName}`);
         if (!this.correction) {
-          this.message = "No more corrections";
+          this.message = 'No more corrections';
         }
         else {
           this.message = null;
         }
       }
       catch (err) {
-        this.errors.push("Error loading correction.");
+        this.errors.push('Error loading correction.');
       }
     },
     downloadHadith: async function (hadithUrn) {
       try {
-        const result = await this.fetchJsonData("/hadtihs/" + hadithUrn);
+        const result = await this.fetchJsonData(`/hadtihs/${hadithUrn}`);
         if (result && result.length != 0) {
           for (var i = 0; i < result.hadith.length; i++) {
             if (result.hadith[i].lang === this.correction.lang) {
@@ -96,7 +96,7 @@ Vue.component("correction-view", {
         }
       }
       catch (err) {
-        this.errors.push("Error loading Hadith.");
+        this.errors.push('Error loading Hadith.');
       }
     },
     checkDiff: function () {
@@ -106,25 +106,25 @@ Vue.component("correction-view", {
         this.correction.val
       )).replaceAll('&para;<br>', '<br/>');
     },
-    changeQueue: function(queueName) {
+    changeQueue: function (queueName) {
       this.queueName = queueName;
       this.loadNextCorrection();
     },
-    accept: function() {
+    accept: function () {
       this.execAction('approve', {
         corrected_value: this.correction.val,
         comment: this.comment,
       })
-    },      
-    reject: function() {
+    },
+    reject: function () {
       this.execAction('reject', {
         comment: this.comment,
       });
     },
-    skip: function() {
+    skip: function () {
       this.execAction('skip');
     },
-    execAction: async function(action, data = {}) {
+    execAction: async function (action, data = {}) {
       try {
         const postData = Object.assign({
           action: action
@@ -148,5 +148,5 @@ Vue.component("correction-view", {
 });
 
 var app = new Vue({
-  el: "#app",
+  el: '#app',
 });

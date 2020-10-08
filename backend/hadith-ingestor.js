@@ -11,7 +11,7 @@ exports.handler = async (event, context) => {
         Item: JSON.parse(event.body)
     };
 
-    payload.Item.id = context.awsRequestId;
+    payload.Item.id = new Date().getTime() + ':' + context.awsRequestId;
     
     return await dynamo.put(payload).promise();
 };

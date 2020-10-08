@@ -1,6 +1,7 @@
 import requests
 import boto3
 import pymysql.cursors
+import time
 from datetime import datetime, timedelta
 from functools import wraps
 from botocore.exceptions import ClientError
@@ -43,6 +44,14 @@ def home(access_token):
     return render_template('index.html', access_token=access_token, username=username, queue_name='global')
 
 
+@app.route('/users', methods=['GET'])
+@ensure_signin
+def users(access_token):
+
+    username = request.cookies.get('username')
+    return render_template('users.html', access_token=access_token, username=username)
+
+
 @app.route('/corrections/<string:queue_name>', methods=['GET'])
 @aws_auth.authentication_required
 def get_correction(queue_name):
@@ -56,7 +65,8 @@ def get_correction(queue_name):
         },
         KeyConditionExpression="queue = :v1",
         Limit=1)
-    return jsonify(response["Items"])
+    correction = next(iter(response["Items"]), None)
+    return jsonify(correction)
 
 
 @app.route('/hadtihs/<int:urn>', methods=['GET'])
@@ -73,7 +83,7 @@ def get_hadith(urn: int):
         return NotFound()
 
 
-@app.route('/corrections/<string:queue_name>/<int:correction_id>', methods=['POST'])
+@app.route('/corrections/<string:queue_name>/<string:correction_id>', methods=['POST'])
 @aws_auth.authentication_required
 def resolve_correction(queue_name, correction_id):
     data = request.json
@@ -87,7 +97,7 @@ def resolve_correction(queue_name, correction_id):
         return archive_correction(queue_name, correction_id, username, None, False)
 
     elif action == "approve":
-        return approve_correction(queue_name, correciont_id, username, data['corrected_value'])
+        return approve_correction(queue_name, correction_id, username, data['corrected_value'])
 
     elif action == "skip":
         return skip_correction(queue_name, correction_id, username)
@@ -113,7 +123,8 @@ def aws_cognito_redirect():
 def sign_in():
     return redirect(aws_auth.get_sign_in_url())
 
-def approve_correction(queue_name, correction_id, corrected_value):
+
+def approve_correction(queue_name, correction_id, username, corrected_value):
     try:
         response = read_correction(queue_name, correction_id)
         if 'Item' not in response:
@@ -123,8 +134,8 @@ def approve_correction(queue_name, correction_id, corrected_value):
             response['Item']['urn'], corrected_value)
 
         if rows_affected == 1:
-            archive_correction(queue_name, correction_id, username,
-                                corrected_value, True)
+            archive_correction(queue_name, correction_id,
+                               username, corrected_value, True)
             return jsonify(create_response_message(True, "Successfully updated hadith text"))
         else:
             return jsonify(create_response_message(False, "Failed to update hadith text"))
@@ -147,12 +158,14 @@ def save_correction_to_hadith_table(urn, corrected_value):
     conn.close()
     return rows_affected
 
+
 def get_correction_table():
     dynamodb = boto3.resource('dynamodb',
                               endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
                               region_name=app.config['REGION'])
     table = dynamodb.Table(app.config['DYNAMODB_TABLE'])
     return table
+
 
 def read_correction(queue_name, correction_id):
     return get_correction_table().get_item(Key={'queue': queue_name, 'id': str(correction_id)})
@@ -161,15 +174,19 @@ def read_correction(queue_name, correction_id):
 def delete_correction(queue_name, correction_id):
     return get_correction_table().delete_item(Key={'queue': queue_name, 'id': str(correction_id)})
 
+
 def skip_correction(queue_name, correction_id, username):
     response = read_correction(queue_name, correction_id)
     delete_correction(queue_name, correction_id)
     try:
-        response['Item']['queue'] = 'skipped'
-        get_correction_table().put_item(Item = response['Item'])
+        # format of id is timestamp:aws_request_id where first part is date and second part is random string
+        aws_request_id = next(iter(response['Item']['id'].split(':', 1)[1:]), '')
+        response['Item']['id'] = f"{time.time()}:{aws_request_id}"
+        get_correction_table().put_item(Item=response['Item'])
         return jsonify(create_response_message(True, "Success"))
     except ClientError as e:
         return jsonify(create_response_message(False, e.response['Error']['Message']))
+
 
 # Will archive (log) an approved or rejected correction to dynamodb
 def archive_correction(queue_name, correction_id, username, corrected_value=None, approved=False):

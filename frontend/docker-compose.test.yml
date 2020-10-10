@@ -5,6 +5,6 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile-test
-    command: pytest
+    command: python -m pytest
     volumes:
       - .:/code

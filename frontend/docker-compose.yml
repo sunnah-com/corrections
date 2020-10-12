@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   mysql-local:
@@ -20,7 +20,7 @@ services:
       - "dynamodb-local"
       - "mysql-local"
     build: .
-    command: bash -c "./scripts/init-dynamodb.sh && flask run --host=0.0.0.0"
+    command: bash -c "/init-dynamodb.sh && flask run --host=0.0.0.0"
     volumes:
       - .:/code
     ports:

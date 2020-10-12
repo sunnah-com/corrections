@@ -1,7 +1,7 @@
 import unittest
 import boto3
 from moto import mock_dynamodb2
-from lib.user.repository import UserDynamoDBRepository
+from lib.data.user_repository import UserRepository
 
 def create_mock_user_table(dynamodb):
     table = dynamodb.create_table(
@@ -31,12 +31,12 @@ def create_mock_user_table(dynamodb):
 
 
 @mock_dynamodb2
-class TestUserDynamoDBRepository(unittest.TestCase):
+class TestUserRepository(unittest.TestCase):
 
     def setUp(self):
         self.dynamodb = boto3.resource('dynamodb', region_name='us-west-2')
         self.table = create_mock_user_table(self.dynamodb)
-        self.user_repository = UserDynamoDBRepository(
+        self.user_repository = UserRepository(
             None, 'us-west-2', 'UserMock'
         )
 
@@ -61,9 +61,9 @@ class TestUserDynamoDBRepository(unittest.TestCase):
         get_response = self.user_repository.get('test_empty', self.table)
         self.assertTrue(get_response is None)
 
-    def test_scan(self):
+    def test_list(self):
         self.user_repository.put('test_x', False, ['testA', 'testB'], self.table)
-        data = self.user_repository.scan(self.table)
+        data = self.user_repository.list(self.table)
         self.assertTrue(len(data) > 0)
 
 

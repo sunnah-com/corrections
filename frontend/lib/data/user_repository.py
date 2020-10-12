@@ -2,14 +2,14 @@ from typing import List
 import boto3
 
 
-class UserDynamoDBRepository:
+class UserRepository:
 
     def __init__(self, endpoint_url, region_name, table_name):
         self.endpoint_url = endpoint_url
         self.region_name = region_name
         self.table_name = table_name
 
-    def get_table(self):
+    def _get_table(self):
         dynamodb = boto3.resource(
             'dynamodb',
             endpoint_url=self.endpoint_url,
@@ -20,13 +20,13 @@ class UserDynamoDBRepository:
 
     def delete(self, username, table=None):
         if table is None:
-            table = self.get_table()
+            table = self._get_table()
 
         return table.delete_item(Key={'username': username})
 
     def put(self, username, manage_users, queues, table=None):
         if table is None:
-            table = self.get_table()
+            table = self._get_table()
 
         return table.put_item(Item={
             'username': username,
@@ -38,13 +38,13 @@ class UserDynamoDBRepository:
 
     def get(self, username, table=None):
         if table is None:
-            table = self.get_table()
+            table = self._get_table()
         result = table.get_item(Key={'username': username})
         return result.get('Item')
 
-    def scan(self, table):
+    def list(self, table):
         if table is None:
-            table = self.get_table()
+            table = self._get_table()
         response = table.scan()
 
         data = response['Items']

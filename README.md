@@ -82,22 +82,29 @@ For the following configs, I have taken gmail as an example.
 
 3. Depending on your Google account's security settings, you may need to generate and use an [app password](https://security.google.com/settings/security/apppasswords) rather than the account password. This may also require enabling 2-step verification. You should probably set this up anyway.
 
+Configurations
+
+```
 MAIL_SERVER=smtp.gmail.com
 MAIL_PORT = 587
 MAIL_USE_TLS = True
 MAIL_USE_SSL = False
 MAIL_USERNAME = 'username@gmail.com'
 MAIL_PASSWORD = 'app password generated in step 3'
+```
 
-Sample Call
-'''
+Example of email function execution
+
+```
 m = EMail()
 
-ctx = {'email': 'fahadhayat@outlook.com',
-'message': 'This is the rejected reason',
-'attr': "<p>Narrated ''Aisha:<p>(the mother of the faithful believers) Al-Harith bin Hisham asked Allah''s Apostle \"O Allah''s Apostle! How is the Divine Inspiration revealed to you?\" Allah''s Apostle replied, \"Sometimes it is (revealed) like the ringing of a bell, this form of Inspiration is the hardest of all and then this state passes off after I have grasped what is inspired. Sometimes the Angel comes in the form of a man and talks to me and I grasp whatever he says.\" ''Aisha added: Verily I saw the Prophet being inspired divinely on a very cold day and noticed the sweat dropping from his forehead (as the Inspiration was over).\r\n<p>",
-'modifiedBy': 'Fahad Hayat',
-'modifiedText': 'Some text modified in the Hadith'}
+ctx = {
+	'email': 'someone@outlook.com',
+	'message': 'This is the rejected reason',
+	'attr': "'<p>Narrated ''Aisha:<p>(the mother of the faithful believers) Al-Harith bin Hisham asked Allah''s Apostle \"O Allah''s Apostle! How is the Divine Inspiration revealed to you?\" Allah''s Apostle replied, \"Sometimes it is (revealed) like the ringing of a bell, this form of Inspiration is the hardest of all and then this state passes off after I have grasped what is inspired. Sometimes the Angel comes in the form of a man and talks to me and I grasp whatever he says.\" ''Aisha added: Verily I saw the Prophet being inspired divinely on a very cold day and noticed the sweat dropping from his forehead (as the Inspiration was over).\r\n<p>'",
+	'modifiedBy': 'Fahad Hayat',
+	'modifiedText': 'Some text modified in the Hadith'
+      }
 
-m.send_mail(template='templates/email/rejected.html', ctx=ctx, # recipients=['a@outlook.com'] )
-'''
+m.send_mail(template='email/rejected.html', ctx=ctx, recipients=['someone@outlook.com'] )
+```

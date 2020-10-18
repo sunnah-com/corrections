@@ -113,16 +113,20 @@ Vue.component('correction-view', {
     accept: function () {
       this.execAction('approve', {
         corrected_value: this.correction.val,
+        version: this.correction.version,
         comment: this.comment,
       })
     },
     reject: function () {
       this.execAction('reject', {
+        version: this.correction.version,
         comment: this.comment,
       });
     },
     skip: function () {
-      this.execAction('skip');
+      this.execAction('skip', {
+        version: this.correction.version,
+      });
     },
     execAction: async function (action, data = {}) {
       try {

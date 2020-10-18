@@ -12,6 +12,8 @@ exports.handler = async (event, context) => {
     };
 
     payload.Item.id = new Date().getTime() + ':' + context.awsRequestId;
+    payload.Item.lastAssigned = null;
+    payload.Item.version = 0;
     
     return await dynamo.put(payload).promise();
 };

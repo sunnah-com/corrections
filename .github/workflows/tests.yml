@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Build and run stack
+      - name: Build stack
         working-directory: frontend
-        run: docker-compose --file docker-compose.test.yml up -d
+        run: docker-compose --file docker-compose.test.yml build
       - name: Test with pytest
         working-directory: frontend
-        run: docker-compose --file docker-compose.test.yml run corrections python -m pytest
+        run: docker-compose --file docker-compose.test.yml run corrections

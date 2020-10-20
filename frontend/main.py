@@ -13,6 +13,7 @@ from werkzeug.exceptions import NotFound
 from extensions import mail
 from botocore.exceptions import ClientError
 from lib.mail import EMail
+from lib.archive_manager import ArchiveItem, ArchiveManager
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -251,25 +252,19 @@ def archive_correction(queue_name, correction_id, version, username, corrected_v
     dynamodb = boto3.resource('dynamodb',
                               endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
                               region_name=app.config['REGION'])
-    archive_table = dynamodb.Table(app.config['DYNAMODB_TABLE_ARCHIVE'])
+    archive_manager = ArchiveManager(
+        dynamodb, app.config['DYNAMODB_TABLE_ARCHIVE'])
     try:
         response = read_correction(queue_name, correction_id, version)
         if not response:
             return not_found(correction_id)
 
-        archive_table.put_item(Item={
-            'queue': response['Item']['queue'],
-            'id': response['Item']['id'],
-            'urn': response['Item']['urn'],
-            'attr': response['Item']['attr'],
-            'val': response['Item']['val'] if not corrected_value else corrected_value,
-            'comment': response['Item']['comment'],
-            'submittedBy': response['Item']['submittedBy'],
-            'modifiedOn': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),
-            'modifiedBy': username,
-            'approved': approved,
-        })
-        response = delete_correction(queue_name, correction_id, version)
+        archive_manager.write(ArchiveItem.deserialize(
+            dict(**response["Item"], **
+                 {"modifiedBy": username, "approved": approved})
+        ))
+
+        response = delete_correction(queue_name, correction_id)
     except ClientError as e:
         return jsonify(create_response_message(False, e.response['Error']['Message']))
 

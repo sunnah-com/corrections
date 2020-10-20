@@ -1,7 +1,16 @@
-version: '3'
+version: "3"
 
 services:
   corrections:
+    depends_on:
+      - "dynamodb-local"
     build:
       context: ./
-      dockerfile: Dockerfile-test
+    command: bash -c "/init-dynamodb.sh && python -m pytest"
+    env_file:
+      - .env.ci
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    container_name: dynamodb-local-test
+    ports:
+      - "8000:8000"

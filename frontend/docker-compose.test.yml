@@ -5,6 +5,3 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile-test
-    command: python -m pytest
-    volumes:
-      - .:/code

@@ -4,10 +4,10 @@ ENV PYTHONUNBUFFERED 1
 
 RUN mkdir /code
 WORKDIR /code
-COPY requirements.txt /code/
+COPY requirements /code/requirements
 
 RUN pip install --upgrade awscli
-RUN pip install -r requirements.txt
+RUN pip install -r requirements/local.txt
 
 RUN groupadd -g 777 appuser && \
     useradd -r -u 777 -g appuser appuser

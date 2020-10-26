@@ -13,7 +13,8 @@ from werkzeug.exceptions import NotFound
 from extensions import mail
 from botocore.exceptions import ClientError
 from lib.mail import EMail
-from lib.archive_manager import ArchiveItem, ArchiveManager
+from lib.data.archive_item import ArchiveItem
+from lib.data.archive_repository import ArchiveRepository
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -173,12 +174,14 @@ def aws_cognito_redirect():
 def sign_in():
     return redirect(aws_auth.get_sign_in_url())
 
+
 def reject_correction(queue_name, correction_id, moderator_comment, version, username):
     correction = read_correction(queue_name, correction_id, version)
     if not correction:
         return not_found(correction_id)
     send_email('rejected', correction, moderator_comment)
     return archive_correction(queue_name, correction_id, version, username, moderator_comment)
+
 
 def approve_correction(queue_name, correction_id, moderator_comment, version, username, corrected_val):
     try:
@@ -193,7 +196,8 @@ def approve_correction(queue_name, correction_id, moderator_comment, version, us
             archive_correction(queue_name, correction_id,
                                username, moderator_comment, corrected_val, True)
 
-            send_email('approved', correction, moderator_comment, corrected_val)
+            send_email('approved', correction,
+                       moderator_comment, corrected_val)
             return jsonify(create_response_message(True, 'Successfully updated hadith text'))
         else:
             return jsonify(create_response_message(False, 'Failed to update hadith text'))
@@ -205,16 +209,21 @@ def approve_correction(queue_name, correction_id, moderator_comment, version, us
     except Exception as exception:
         return jsonify(create_response_message(False, 'Error - ' + str(exception)))
 
+
 def get_dynamo_db():
     dynamodb = boto3.resource('dynamodb',
                               endpoint_url=app.config['DYNAMODB_ENDPOINT_URL'],
                               region_name=app.config['REGION'])
     return dynamodb
 
+
 def send_email(decision: str, correction: dict, moderator_comment: str = '', corrected_val: str = ''):
     email = EMail()
-    ctx = dict(**correction, **{"moderatorComment": moderator_comment, "correctedVal": corrected_val})
-    email.send(template=f'email/{decision}.html', ctx=ctx, subject=f'Your correction has been {decision}', recipients=[correction['submittedBy']] )
+    ctx = dict(**correction, **
+               {"moderatorComment": moderator_comment, "correctedVal": corrected_val})
+    email.send(template=f'email/{decision}.html', ctx=ctx,
+               subject=f'Your correction has been {decision}', recipients=[correction['submittedBy']])
+
 
 def save_correction_to_hadith_table(urn: int, corrected_val: str):
     conn = pymysql.connect(**mysql_properties)
@@ -232,14 +241,16 @@ def get_correction_table():
 
 
 def read_correction(queue_name, correction_id, version):
-    response = get_correction_table().get_item(Key={'queue': queue_name, 'id': str(correction_id)})
+    response = get_correction_table().get_item(
+        Key={'queue': queue_name, 'id': str(correction_id)})
     if not ('Item' in response and response['Item'].get('version', 0) == version):
         return None
     return response['Item']
 
 
 def delete_correction(queue_name, correction_id, version):
-    get_correction_table().delete_item(Key={'queue': queue_name, 'id': str(correction_id)},ExpressionAttributeValues={':v1': version}, ConditionExpression='version = :v1')
+    get_correction_table().delete_item(Key={'queue': queue_name, 'id': str(
+        correction_id)}, ExpressionAttributeValues={':v1': version}, ConditionExpression='version = :v1')
 
 
 def skip_correction(queue_name, correction_id, version, username):
@@ -260,28 +271,33 @@ def skip_correction(queue_name, correction_id, version, username):
         return jsonify(create_response_message(False, e.response['Error']['Message']))
 
 
-def archive_correction(queue_name:str, correction_id:str, version:int, username:str, moderator_comment:str='', corrected_val:str=None, approved:bool = False):
-    archive_manager = ArchiveManager(
-        get_dynamo_db(), app.config['DYNAMODB_TABLE_ARCHIVE'])
+def archive_correction(queue_name: str, correction_id: str, version: int, username: str, moderator_comment: str = '', corrected_val: str = None, approved: bool = False):
+    archive_repository = ArchiveRepository(
+        app.config['DYNAMODB_ENDPOINT_URL'],
+        app.config['REGION'],
+        app.config['DYNAMODB_TABLE_ARCHIVE'])
+
     try:
         correction = read_correction(queue_name, correction_id, version)
         if not correction:
             return not_found(correction_id)
 
         entry = dict(**correction, **
-                 {'modifiedBy': username, 
-                 'moderatorComment': moderator_comment, 
-                 'correctedVal': corrected_val,
-                 'approved': approved})
-        archive_manager.write(ArchiveItem.deserialize(entry))
+                     {'modifiedBy': username,
+                      'moderatorComment': moderator_comment,
+                      'correctedVal': corrected_val,
+                      'approved': approved})
+        archive_repository.write(ArchiveItem.deserialize(entry))
         delete_correction(queue_name, correction_id, version)
     except ClientError as e:
         return jsonify(create_response_message(False, e.response['Error']['Message']))
 
     return jsonify(create_response_message(True, 'Success'))
 
+
 def not_found(correction_id):
     return jsonify(create_response_message(False, f'Correction with id "{correction_id}" not found'))
+
 
 def create_response_message(success, message):
     return {

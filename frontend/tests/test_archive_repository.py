@@ -1,15 +1,20 @@
+import unittest
 from datetime import datetime
+from lib.data.archive_item import ArchiveItem
+from lib.data.archive_repository import ArchiveRepository
 
-import pytest
-from lib.archive_manager import ArchiveItem, ArchiveManager
 
+class TestArchiveRepository(unittest.TestCase):
 
-class TestArchiveManager():
+    def setUp(self):
+        self.repository = ArchiveRepository(
+            "http://dynamodb-local:8000/", 'us-west-2', 'HadithCorrectionsArchive'
+        )
 
     def test_serialization(self):
         now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
         item = ArchiveItem("global", "1", "1", "hadithText", "Content",
-                           "comment", "me@email.com", "me@email.com", False, now)
+                           "comment", "me@email.com", "me@email.com", "ok", "corrected value", False, now)
 
         assert item.serialize()
         assert item.serialize() == {
@@ -22,6 +27,8 @@ class TestArchiveManager():
             "submittedBy": "me@email.com",
             "modifiedBy": "me@email.com",
             "modifiedOn": now,
+            "correctedVal": "corrected value",
+            "moderatorComment": "ok",
             "approved": False
         }
 
@@ -36,6 +43,8 @@ class TestArchiveManager():
             "comment": "comment",
             "submittedBy": "me@email.com",
             "modifiedBy": "me@email.com",
+            "correctedVal": "corrected value",
+            "moderatorComment": "ok",
             "approved": False,
             "modifiedOn": now
         }
@@ -49,25 +58,29 @@ class TestArchiveManager():
         assert item.comment == "comment"
         assert item.submitted_by == "me@email.com"
         assert item.modified_by == "me@email.com"
+        assert item.corrected_val == "corrected value"
+        assert item.moderator_comment == "ok"
         assert item.is_approved == False
         assert item.modified_on == now
 
-    def test_archive_read(self, dynamodb):
-        manager = ArchiveManager(dynamodb, "HadithCorrectionsArchive")
-        assert len(manager.read()) == 1
+    def test_read(self):
+        assert len(self.repository.read()) == 1
 
-    def test_write(self, dynamodb):
-        manager = ArchiveManager(dynamodb, "HadithCorrectionsArchive")
-        manager.write(ArchiveItem("global", "1", "1", "hadithText", "Content",
-                                  "comment", "me@email.com", "me@email.com", False))
+    def test_write(self):
+        self.repository.write(ArchiveItem("queue",
+                                          "id",
+                                          "urn",
+                                          "attr",
+                                          "val",
+                                          "comment",
+                                          "me@email.com",
+                                          "guest",
+                                          "ok",
+                                          "corrected_val",
+                                          False))
 
-        assert len(manager.read(2)) == 2
+        assert len(self.repository.read(2)) == 2
 
-    def test_read_n_items(self, dynamodb):
-        manager = ArchiveManager(dynamodb, "HadithCorrectionsArchive")
-        for i in range(5):
-            manager.write(ArchiveItem("global", str(i), str(i), "hadithText", "Content",
-                                      "comment", "me@email.com", "me@email.com", True))
 
-        assert len(manager.read(4)) == 4
-        assert len(manager.read(3)) == 3
+if __name__ == '__main__':
+    unittest.main()

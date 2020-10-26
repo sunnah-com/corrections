@@ -14,6 +14,8 @@ class ArchiveItem:
             comment: str,
             submitted_by: str,
             modified_by: str,
+            moderator_comment: str,
+            corrected_val: str,
             is_approved: bool,
             modified_on: str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
     ) -> None:
@@ -26,6 +28,8 @@ class ArchiveItem:
         self.submitted_by = submitted_by
         self.modified_by = modified_by
         self.modified_on = modified_on
+        self.moderator_comment = moderator_comment
+        self.corrected_val = corrected_val
         self.is_approved = is_approved
 
     def serialize(self) -> Dict:
@@ -39,6 +43,8 @@ class ArchiveItem:
             "submittedBy": self.submitted_by,
             "modifiedBy": self.modified_by,
             "modifiedOn": self.modified_on,
+            "moderatorComment": self.moderator_comment,
+            "correctedVal": self.corrected_val,
             "approved": self.is_approved,
         }
 
@@ -53,6 +59,8 @@ class ArchiveItem:
             data["comment"],
             data["submittedBy"],
             data["modifiedBy"],
+            data["moderatorComment"],
+            data["correctedVal"],
             data["approved"],
         )
         if "modifiedOn" in data:

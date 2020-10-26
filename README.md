@@ -1,10 +1,12 @@
-# Overview
+# Sunnah.com Corrections App
+
+## Overview
 
 This is hadith corrections app.
 
 python 3+ is required to run the project.
 
-# Getting started
+## Getting started
 
 Please follow the instructions below.
 
@@ -84,27 +86,11 @@ For the following configs, I have taken gmail as an example.
 
 Configurations
 
-```
+```bash
 MAIL_SERVER=smtp.gmail.com
 MAIL_PORT = 587
 MAIL_USE_TLS = True
 MAIL_USE_SSL = False
 MAIL_USERNAME = 'username@gmail.com'
 MAIL_PASSWORD = 'app password generated in step 3'
-```
-
-Example of email function execution
-
-```
-m = EMail()
-
-ctx = {
-	'email': 'someone@outlook.com',
-	'message': 'This is the rejected reason',
-	'attr': "'<p>Narrated ''Aisha:<p>(the mother of the faithful believers) Al-Harith bin Hisham asked Allah''s Apostle \"O Allah''s Apostle! How is the Divine Inspiration revealed to you?\" Allah''s Apostle replied, \"Sometimes it is (revealed) like the ringing of a bell, this form of Inspiration is the hardest of all and then this state passes off after I have grasped what is inspired. Sometimes the Angel comes in the form of a man and talks to me and I grasp whatever he says.\" ''Aisha added: Verily I saw the Prophet being inspired divinely on a very cold day and noticed the sweat dropping from his forehead (as the Inspiration was over).\r\n<p>'",
-	'modifiedBy': 'Fahad Hayat',
-	'modifiedText': 'Some text modified in the Hadith'
-      }
-
-m.send_mail(template='email/rejected.html', ctx=ctx, recipients=['someone@outlook.com'] )
 ```

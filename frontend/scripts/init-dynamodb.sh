@@ -64,7 +64,7 @@ aws dynamodb put-item --table-name HadithCorrectionsArchive --item '{
       "S":"50"
    },
    "attr":{
-      "S":"hadithText"
+      "S":"body"
    },
    "val":{
       "S":"modifiedText"

@@ -11,7 +11,7 @@ class EMail:
     def __init__(self):
         self.m = mail
 
-    def send_mail(self, template=None, ctx=None, *args, **kwargs):
+    def send(self, template=None, ctx=None, *args, **kwargs):
         """
         Send a templated e-mail using a similar signature as Flask-Mail:
         http://pythonhosted.org/Flask-Mail/
@@ -22,7 +22,7 @@ class EMail:
 
         Example:
             ctx = {'username': current_user, 'message': 'message in the body'}
-            send_mail(subject='Correction', recipients=[users_email],
+            send(subject='Correction', recipients=[users_email],
                                 template='layout/mail', ctx=ctx)
 
         :param subject:
@@ -52,8 +52,7 @@ class EMail:
                 raise Exception(
                     'You cannot have both a template and html arg.')
 
-            kwargs['html'] = self._try_renderer_template(
-                template_path=template, ext='html',  **ctx)
+            kwargs['html'] = render_template(template, **ctx)
 
         self.m.send_message(
             sender=current_app.config['MAIL_DEAFULT_SENDER'],
@@ -62,20 +61,3 @@ class EMail:
             **kwargs)
 
         return None
-
-    def _try_renderer_template(self, template_path, ext='txt', **kwargs):
-        """
-        Attempt to render a template. We use a try/catch here to avoid having to
-        do a path exists based on a relative path to the template.
-
-        :param template_path: Template path
-        :type template_path: str
-        :param ext: File extension
-        :type ext: str
-        :return: str
-        """
-        try:
-            return render_template('{0}.{1}'.format(template_path, ext), **kwargs)
-
-        except IOError:
-            pass

@@ -19,24 +19,19 @@
   </head>
 
   <body>
-    <p>As-salamu alaykum {{modifiedBy}},</p>
-    <br />
+    <p>As-salamu alaykum</p>
     <p>
       Thank you for submitting a corrections request for the following Hadith.
     </p>
     <p>
-      <span><b>Hadith: </b>{{attr | safe}}</span><br />
-      <span><b>Modifications: </b>{{modifiedText | safe}}</span>
+      <span><b>Hadith attribute: </b>{{attr | safe}}</span><br />
+      <span><b>Modifications: </b>{{val | safe}}</span>
     </p>
-    <br />
     <p>
-      <span
-        >We are glad to inform you that your request has been
-        <span class="approved">approved</span> by our moderators.</span
-      >
-      <span>{{message}}</span>
+      <span>We are glad to inform you that your request has been
+        <span class="approved">approved</span> by our moderators.</span><br/>
+      <span>{{moderatorComment}}</span>
     </p>
-    <br />
     <p>We sincierely appreciate your time for supporting our mission.</p>
     <p>
       <span>Regards,</span> <br />

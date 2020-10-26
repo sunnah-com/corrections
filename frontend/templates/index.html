@@ -44,7 +44,7 @@
                   </div>
                   <div class="value">
                     <span class="label">Value:</span>
-                    <textarea @input="checkDiff" class="form-control" name="corrected_value" rows="10"
+                    <textarea @input="checkDiff" class="form-control" name="corrected_val" rows="10"
                       v-model="correction.val"></textarea>
                   </div>
                   <div>
@@ -69,10 +69,10 @@
                 <button type="button" class="btn btn-danger mt-2" v-on:click="reject">Reject</button>
                 <button type="button" class="btn btn-info mt-2" v-on:click="skip">Skip</button>
                 <div class="form-group form-check mt-2">
-                  <input type="checkbox" class="form-check-input" id="checkbox" v-model="addComment" />
-                  <label class="form-check-label" for="checkbox">Add Comment</label>
+                  <input type="checkbox" class="form-check-input" id="checkbox" v-model="addModeratorComment" />
+                  <label class="form-check-label" for="checkbox">Add Message</label>
                 </div>
-                <textarea class="form-control" id="comment" rows="5" v-model="comment" v-if="addComment"></textarea>
+                <textarea class="form-control" rows="5" v-model="moderatorComment" v-if="addModeratorComment"></textarea>
               </div>
             </div>
           </div>

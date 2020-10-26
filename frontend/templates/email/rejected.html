@@ -14,22 +14,19 @@
     </style>
     </head>
     <body>
-        <p>As-salamu alaykum {{modifiedBy}},</p>
-        <br />
+        <p>As-salamu alaykum</p>
         <p>
             Thank you for submitting a corrections request for the following Hadith.
         </p>
         <p>
-            <span><b>Hadith: </b>{{attr | safe}}</span><br />
-            <span><b>Modifications: </b>{{modifiedText | safe}}</span>
+            <span><b>Hadith attribute: </b>{{attr | safe}}</span><br />
+            <span><b>Modifications: </b>{{val | safe}}</span>
         </p>
-        <br />
         <p>
-            We would like to inform you that your request has been <span class='rejected'>rejected</span> by our moderators for the following reason.
-            <p><b>Reason:</b> {{message}}</p>
+            <span>We would like to inform you that your request has been 
+                <span class='rejected'>rejected</span> by our moderators.</span><br/>
+            <span>{{moderatorComment}}</span>
         </p>
-
-        <br />
         <p>We sincierely appreciate your time for supporting our mission.</p>
         <p>
             <span>Regards,</span> <br />

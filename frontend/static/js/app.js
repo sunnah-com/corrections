@@ -8,8 +8,8 @@ Vue.component('correction-view', {
       originalHadith: null,
       queueName: this.queue,
       diff: null,
-      addComment: false,
-      comment: '',
+      addModeratorComment: false,
+      moderatorComment: '',
     };
   },
   created: function () {
@@ -33,9 +33,9 @@ Vue.component('correction-view', {
   },
   methods: {
     reset: function () {
-      this.comment = null;
-      this.addComment = false;
-      this.errors = [];
+      this.moderatorComment = '';
+      this.addModeratorComment = false;
+      this.errors.splice(0, this.errors.length);
       this.correction = null;
       this.loading = false;
       this.originalHadith = null;
@@ -112,15 +112,15 @@ Vue.component('correction-view', {
     },
     accept: function () {
       this.execAction('approve', {
-        corrected_value: this.correction.val,
+        corrected_val: this.correction.val,
         version: this.correction.version,
-        comment: this.comment,
+        moderatorComment: this.moderatorComment,
       })
     },
     reject: function () {
       this.execAction('reject', {
         version: this.correction.version,
-        comment: this.comment,
+        moderatorComment: this.moderatorComment,
       });
     },
     skip: function () {
@@ -145,8 +145,8 @@ Vue.component('correction-view', {
     }
   },
   watch: {
-    addComment: function (val) {
-      if (!val) this.comment = null;
+    addModeratorComment: function (val) {
+      if (!val) this.moderatorComment = '';
     }
   }
 });

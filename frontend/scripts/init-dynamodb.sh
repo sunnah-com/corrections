@@ -98,6 +98,9 @@ aws dynamodb put-item --table-name Users --item '{
               "manage_users": {
                 "BOOL": true
               },
+              "view_archive": {
+                "BOOL": true
+              },
               "queues":{
                 "SS": ["global", "secondary"]
               }

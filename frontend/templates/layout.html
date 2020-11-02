@@ -14,6 +14,22 @@
 <body>
     <div id="app" class="container">
         <h1>Hadith Correction App</h1>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                  <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/archive">Archive</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/users">Users</a>
+                </li>                
+              </ul>
+              <a class="nav-link" href="/logout">Logout</a>
+            </div>
+          </nav>
         {% block content %}{% endblock %}
     </div>
     {% block script %}{% endblock %}

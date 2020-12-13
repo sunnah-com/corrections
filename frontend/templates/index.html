@@ -68,6 +68,13 @@
                 <button class="btn btn-primary mt-2" v-on:click="accept">Accept</button>
                 <button type="button" class="btn btn-danger mt-2" v-on:click="reject">Reject</button>
                 <button type="button" class="btn btn-info mt-2" v-on:click="skip">Skip</button>
+
+                <div class="dropdown mt-2 ">
+                  <button type="button" class="btn btn-secondary dropdown-toggle" id="queueUpdateDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Move to</button>
+                  <div class="dropdown-menu" aria-labelledby="queueUpdateDropdown">
+                    <a v-for="queue in queues" class="dropdown-item" href="#" v-on:click="move(queue.name)">{{queue.name}}</a>
+                  </div>
+                </div>
                 <div class="form-group form-check mt-2">
                   <input type="checkbox" class="form-check-input" id="checkbox" v-model="addModeratorComment" />
                   <label class="form-check-label" for="checkbox">Add Message</label>

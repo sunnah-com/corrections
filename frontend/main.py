@@ -131,6 +131,12 @@ def get_hadith(urn: int):
     else:
         return NotFound()
 
+@app.route('/queues/', methods=['GET'])
+@aws_auth.authentication_required
+def get_queues():
+    queues = [{"name":"global"}, {"name":"secondary"}]
+    return jsonify(queues)
+
 
 @app.route('/corrections/<string:queue_name>/<string:correction_id>', methods=['POST'])
 @aws_auth.authentication_required
@@ -152,6 +158,9 @@ def resolve_correction(queue_name, correction_id):
 
     elif action == 'skip':
         return skip_correction(queue_name, correction_id, version, username)
+
+    elif action == 'move':
+        return move_correction(queue_name, correction_id, version, data['new_queue_name'])
 
     else:
         return jsonify(create_response_message(False, 'Please provide valid action param "reject", "skip", or "approve"'))
@@ -253,18 +262,28 @@ def delete_correction(queue_name, correction_id, version):
         correction_id)}, ExpressionAttributeValues={':v1': version}, ConditionExpression='version = :v1')
 
 
+def move_correction(queue_name, correction_id, version, updated_queue_name):
+    correction = read_correction(queue_name, correction_id, version)
+    if not correction:
+        return not_found(correction_id)
+    delete_correction(queue_name, correction_id, version)
+    try:
+        #it is not possible to update an attribute that forms the Key of an item thus we need to copy/delete/put in DynamoDB.
+        correction = reset_correction(correction)
+        correction['queue'] = updated_queue_name
+        get_correction_table().put_item(Item=correction)
+        return jsonify(create_response_message(True, 'Successfully moved correction.'))
+    except Exception as exception:
+        return jsonify(create_response_message(False, 'Error - ' + str(exception)))
+
+
 def skip_correction(queue_name, correction_id, version, username):
     correction = read_correction(queue_name, correction_id, version)
     if not correction:
         return not_found(correction_id)
     delete_correction(queue_name, correction_id, version)
     try:
-        # format of id is timestamp:aws_request_id where first part is date and second part is random string
-        aws_request_id = next(
-            iter(correction['id'].split(':', 1)[1:]), '')
-        correction['id'] = f'{time.time()}:{aws_request_id}'
-        correction['version'] = 0
-        correction.pop('lastAssigned', None)
+        correction = reset_correction(correction)
         get_correction_table().put_item(Item=correction)
         return jsonify(create_response_message(True, 'Success'))
     except ClientError as e:
@@ -316,6 +335,20 @@ def extensions(app):
     mail.init_app(app)
 
     return None
+
+
+def reset_correction(correction):
+    # format of id is timestamp:aws_request_id where first part is date and second part is random string
+    reset_fields = ["id", "version", "lastAssigned"]
+    if "id" in reset_fields:
+        aws_request_id = next(
+            iter(correction['id'].split(':', 1)[1:]), '')
+        correction['id'] = f'{time.time()}:{aws_request_id}'
+    if "version" in reset_fields:
+        correction['version'] = 0
+    if "lastAssigned" in reset_fields:
+        correction.pop('lastAssigned', None)
+    return correction
 
 
 with app.app_context():

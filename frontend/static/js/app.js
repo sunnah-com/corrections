@@ -10,7 +10,11 @@ Vue.component('correction-view', {
       diff: null,
       addModeratorComment: false,
       moderatorComment: '',
+      queues: []
     };
+  },
+  mounted: function () {
+    this.getQueues();
   },
   created: function () {
     this.loadNextCorrection();
@@ -99,6 +103,15 @@ Vue.component('correction-view', {
         this.errors.push('Error loading Hadith.');
       }
     },
+    getQueues: async function () {
+      try {
+        const result = await this.fetchJsonData(`/queues/`);
+        this.queues =  result
+      }
+      catch (err) {
+        this.errors.push('Error fetching Queues.');
+      }
+    },
     checkDiff: function () {
       const dmp = new diff_match_patch();
       this.diff = dmp.diff_prettyHtml(dmp.diff_main(
@@ -126,6 +139,12 @@ Vue.component('correction-view', {
     skip: function () {
       this.execAction('skip', {
         version: this.correction.version,
+      });
+    },
+    move: function (queueName) {
+      this.execAction('move', {
+        version: this.correction.version,
+        new_queue_name: queueName,
       });
     },
     execAction: async function (action, data = {}) {

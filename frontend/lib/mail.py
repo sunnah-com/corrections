@@ -45,19 +45,18 @@ class EMail:
         """
 
         if template is not None:
-            if 'body' in kwargs:
-                raise Exception(
-                    'You cannot have both a template and body arg.')
-            elif 'html' in kwargs:
-                raise Exception(
-                    'You cannot have both a template and html arg.')
+            if "body" in kwargs:
+                raise Exception("You cannot have both a template and body arg.")
+            elif "html" in kwargs:
+                raise Exception("You cannot have both a template and html arg.")
 
-            kwargs['html'] = render_template(template, **ctx)
+            kwargs["html"] = render_template(template, **ctx)
 
         self.m.send_message(
-            sender=current_app.config['MAIL_DEAFULT_SENDER'],
-            reply_to=current_app.config['MAIL_DEAFULT_SENDER'],
+            sender=current_app.config["MAIL_DEAFULT_SENDER"],
+            reply_to=current_app.config["MAIL_DEAFULT_SENDER"],
             *args,
-            **kwargs)
+            **kwargs
+        )
 
         return None

@@ -5,16 +5,27 @@ from lib.data.archive_repository import ArchiveRepository
 
 
 class TestArchiveRepository(unittest.TestCase):
-
     def setUp(self):
         self.repository = ArchiveRepository(
-            "http://dynamodb-local:8000/", 'us-west-2', 'HadithCorrectionsArchive'
+            "http://dynamodb-local:8000/", "us-west-2", "HadithCorrectionsArchive"
         )
 
     def test_serialization(self):
         now = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-        item = ArchiveItem("global", "1", "1", "hadithText", "Content",
-                           "comment", "me@email.com", "me@email.com", "ok", "corrected value", False, now)
+        item = ArchiveItem(
+            "global",
+            "1",
+            "1",
+            "hadithText",
+            "Content",
+            "comment",
+            "me@email.com",
+            "me@email.com",
+            "ok",
+            "corrected value",
+            False,
+            now,
+        )
 
         assert item.serialize()
         assert item.serialize() == {
@@ -29,7 +40,7 @@ class TestArchiveRepository(unittest.TestCase):
             "modifiedOn": now,
             "correctedVal": "corrected value",
             "moderatorComment": "ok",
-            "approved": False
+            "approved": False,
         }
 
     def test_deserialization(self):
@@ -46,7 +57,7 @@ class TestArchiveRepository(unittest.TestCase):
             "correctedVal": "corrected value",
             "moderatorComment": "ok",
             "approved": False,
-            "modifiedOn": now
+            "modifiedOn": now,
         }
 
         item = ArchiveItem.deserialize(data)
@@ -67,20 +78,24 @@ class TestArchiveRepository(unittest.TestCase):
         assert len(self.repository.read()) == 1
 
     def test_write(self):
-        self.repository.write(ArchiveItem("queue",
-                                          "id",
-                                          "urn",
-                                          "attr",
-                                          "val",
-                                          "comment",
-                                          "me@email.com",
-                                          "guest",
-                                          "ok",
-                                          "corrected_val",
-                                          False))
+        self.repository.write(
+            ArchiveItem(
+                "queue",
+                "id",
+                "urn",
+                "attr",
+                "val",
+                "comment",
+                "me@email.com",
+                "guest",
+                "ok",
+                "corrected_val",
+                False,
+            )
+        )
 
         assert len(self.repository.read(2)) == 2
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

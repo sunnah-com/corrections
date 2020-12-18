@@ -4,19 +4,19 @@ from typing import Dict
 
 class ArchiveItem:
     def __init__(
-            self,
-            queue: str,
-            id: str,
-            urn: int,
-            attr: str,
-            val: str,
-            comment: str,
-            submitted_by: str,
-            modified_by: str,
-            moderator_comment: str,
-            corrected_val: str,
-            is_approved: bool,
-            modified_on: str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        self,
+        queue: str,
+        id: str,
+        urn: int,
+        attr: str,
+        val: str,
+        comment: str,
+        submitted_by: str,
+        modified_by: str,
+        moderator_comment: str,
+        corrected_val: str,
+        is_approved: bool,
+        modified_on: str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
     ) -> None:
         self.queue = queue
         self.id = id

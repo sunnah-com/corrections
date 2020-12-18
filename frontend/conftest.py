@@ -8,7 +8,7 @@ from config import Config
 @pytest.fixture
 def dynamodb():
     return boto3.resource(
-        'dynamodb',
+        "dynamodb",
         endpoint_url=Config.DYNAMODB_ENDPOINT_URL,
         region_name=Config.REGION,
     )

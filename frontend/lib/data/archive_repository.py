@@ -6,9 +6,7 @@ from lib.data.archive_item import ArchiveItem
 class ArchiveRepository:
     def __init__(self, endpoint_url, region_name, table_name):
         dynamodb = boto3.resource(
-            'dynamodb',
-            endpoint_url=endpoint_url,
-            region_name=region_name
+            "dynamodb", endpoint_url=endpoint_url, region_name=region_name
         )
         self.table = dynamodb.Table(table_name)
 

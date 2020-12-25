@@ -7,6 +7,8 @@ services:
     build:
       context: ./
     command: bash -c "/init-dynamodb.sh && python -m pytest"
+    volumes:
+      - .:/code
     env_file:
       - .env.ci
   dynamodb-local:

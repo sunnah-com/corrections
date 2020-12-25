@@ -1,10 +1,10 @@
 import unittest
-from lib.data.user_repository import UserRepository
+from lib.data.user_repository import LocalUserRepository
 
 
 class TestUserRepository(unittest.TestCase):
     def setUp(self):
-        self.repository = UserRepository(
+        self.repository = LocalUserRepository(
             "http://dynamodb-local:8000/", "us-west-2", "Users"
         )
 

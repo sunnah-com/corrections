@@ -4,13 +4,13 @@ ENV PYTHONUNBUFFERED 1
 
 RUN mkdir /code
 WORKDIR /code
-COPY requirements.txt /code/
+COPY requirements /code/requirements
 
 RUN apt-get update && \
     apt-get install gcc -y && \
     apt-get clean
 RUN pip install uwsgi && \
-    pip install -r requirements.txt
+    pip install -r requirements/production.txt
 
 RUN groupadd -g 777 appuser && \
     useradd -r -u 777 -g appuser appuser

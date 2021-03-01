@@ -53,8 +53,8 @@ class EMail:
             kwargs["html"] = render_template(template, **ctx)
 
         self.m.send_message(
-            sender=current_app.config["MAIL_DEAFULT_SENDER"],
-            reply_to=current_app.config["MAIL_DEAFULT_SENDER"],
+            sender=current_app.config["MAIL_DEFAULT_SENDER"],
+            reply_to=current_app.config["MAIL_DEFAULT_SENDER"],
             *args,
             **kwargs
         )

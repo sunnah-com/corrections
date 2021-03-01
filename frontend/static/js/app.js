@@ -89,7 +89,7 @@ Vue.component('correction-view', {
     },
     downloadHadith: async function (hadithUrn) {
       try {
-        const result = await this.fetchJsonData(`/hadtihs/${hadithUrn}`);
+        const result = await this.fetchJsonData(`/hadiths/${hadithUrn}`);
         if (result && result.length != 0) {
           for (var i = 0; i < result.hadith.length; i++) {
             if (result.hadith[i].lang === this.correction.lang) {

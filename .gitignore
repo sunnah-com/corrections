@@ -1,6 +1,7 @@
 *.py[cod]
 __pycache__
 .DS_Store
+**.well-known/
 
 .vscode/
 .coverage

@@ -40,3 +40,7 @@ class Config(object):
     MAIL_USE_SSL = False
     MAIL_USERNAME = "{MAIL_USERNAME}".format(**os.environ)
     MAIL_PASSWORD = "{MAIL_PASSWORD}".format(**os.environ)
+
+    # Queues
+    QUEUES = "{QUEUES}".format(**os.environ)
+

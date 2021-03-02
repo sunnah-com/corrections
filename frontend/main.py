@@ -141,7 +141,8 @@ def get_hadith(urn: int):
 @app.route("/queues/", methods=["GET"])
 @aws_auth.authentication_required
 def get_queues():
-    queues = [{"name": "global"}, {"name": "secondary"}]
+    queue_names = app.config["QUEUES"].split(",")
+    queues = [{"name": queue_name} for queue_name in queue_names]
     return jsonify(queues)
 
 

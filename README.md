@@ -47,7 +47,7 @@ A production ready uWSGI daemon (uwsgi socket exposed on port 5500) can be start
 docker-compose -f docker-compose.prod.yml up -d --build
 ```
 
-The production backend is deployed at https://l7jwlmg0h3.execute-api.us-west-2.amazonaws.com/prod
+The corrections ingestor receives corrections (with an API key) at https://corrections.sunnah.com/submit.
 
 ## Request schema
 
@@ -55,6 +55,7 @@ The request to submit correction should be similar to:
 
 ```json
 {
+  "id": "a6407823-286c-455d-9874-8de0093336b2", # Optional
   "urn": "123",
   "attr": "body",
   "val": "modified body text here",

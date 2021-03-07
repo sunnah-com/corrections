@@ -1,105 +1,120 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-    <h3>Welcome {{ username }}!</h3>
-    <correction-view inline-template token="{{ access_token }}" queue="{{ queue_name }}">
-      {% raw %}
-      <div>
-        {{ message }}
+<h3>Welcome {{ username }}!</h3>
+<correction-view inline-template token="{{ access_token }}" queue="{{ queue_name }}">
+  {% raw %}
+  <div>
+    {{ message }}
 
-        <div>
-          <div class="row">
-            <div class="col">
-              <p v-if="loading">Loading...</p>
-              <p v-for="error in errors">
-                {{ error }}
-              </p>
-              <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="queueDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  {{queueName}}
-                </button>
-                <div class="dropdown-menu" aria-labelledby="queueDropdown">
-                  <a class="dropdown-item" href="#" v-on:click="changeQueue('global')">global</a>
-                  <a class="dropdown-item" href="#" v-on:click="changeQueue('secondary')">secondary</a>
-                </div>
-              </div>
-            </div>            
-          </div>
-          <div class="row" v-if="correction != null">
-            <div class="col">              
-              <div id="original" class="item">
-                <h3>Original</h3>
-                <div v-if="originalHadith">
-                  <div>
-                    <span class="label">Attribute:</span> {{ correction.attr }}
-                  </div>
-                  <div class="value">
-                    <span class="label">Value:</span>
-                    <textarea class="form-control" rows="10">
-                      {{ originalHadith[this.correction.attr] }}
-                    </textarea>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col">              
-              <div id="correction" class="item">
-                <h3>Correction</h3>
-                <div>                  
-                  <div class="comment">
-                    <span class="label">Comment:</span>
-                    <p>{{ correction.comment }}</p>
-                  </div>
-                  <div>
-                    <span class="label">Submitted By:</span> {{ correction.submittedBy }}
-                  </div>
-                  <div class="value">
-                    <span class="label">Value:</span>
-                    <textarea @input="checkDiff" class="form-control" name="corrected_val" rows="10"
-                      v-model="correction.val"></textarea>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="item" v-if="correction != null && originalHadith != null">
-                <h3>Diff</h3>
-                <div v-html="this.diff">
-                </div>
-              </div>
-            </div>            
-          </div>
-          <div class="row" v-if="correction != null">
-            <div class="col">
-              <div class="item" v-if="correction != null && originalHadith != null">
-                <h3>Preview</h3>
-                <div v-html="correction.val">
-                </div>
-                <button class="btn btn-primary mt-2" v-on:click="accept">Accept</button>
-                <button type="button" class="btn btn-danger mt-2" v-on:click="reject">Reject</button>
-                <button type="button" class="btn btn-info mt-2" v-on:click="skip">Skip</button>
-
-                <div class="dropdown mt-2 ">
-                  <button type="button" class="btn btn-secondary dropdown-toggle" id="queueUpdateDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Move to</button>
-                  <div class="dropdown-menu" aria-labelledby="queueUpdateDropdown">
-                    <a v-for="queue in queues" class="dropdown-item" href="#" v-on:click="move(queue.name)">{{queue.name}}</a>
-                  </div>
-                </div>
-                <div class="form-group form-check mt-2">
-                  <input type="checkbox" class="form-check-input" id="checkbox" v-model="addModeratorComment" />
-                  <label class="form-check-label" for="checkbox">Add Message</label>
-                </div>
-                <textarea class="form-control" rows="5" v-model="moderatorComment" v-if="addModeratorComment"></textarea>
-              </div>
+    <div>
+      <div class="row">
+        <div class="col">
+          <p v-if="loading">Loading...</p>
+          <p v-for="error in errors">
+            {{ error }}
+          </p>
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="queueDropdown" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              {{queueName}}
+            </button>
+            <div class="dropdown-menu" aria-labelledby="queueDropdown">
+              <a class="dropdown-item" href="#" v-on:click="changeQueue('global')">global</a>
+              <a class="dropdown-item" href="#" v-on:click="changeQueue('secondary')">secondary</a>
             </div>
           </div>
         </div>
       </div>
-      {% endraw %}
-    </correction-view>
+      <div class="row" v-if="correction != null">
+        <div class="col-sm">
+          <div id="original" class="item">
+            <h3>Original</h3>
+            <div v-if="originalHadith">
+              <div>
+                <span class="label">Attribute:</span> {{ correction.attr }}
+              </div>
+              <div class="value">
+                <span class="label">Value:</span>
+                <textarea class="form-control" rows="10">
+                      {{ originalHadith[this.correction.attr] }}
+                    </textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm">
+          <div id="correction" class="item">
+            <h3>Correction</h3>
+            <div>
+              <div class="comment">
+                <span class="label">Comment:</span>
+                <p>{{ correction.comment }}</p>
+              </div>
+              <div>
+                <span class="label">Submitted By:</span> {{ correction.submittedBy }}
+              </div>
+              <div class="value">
+                <span class="label">Value:</span>
+                <textarea @input="checkDiff" class="form-control" name="corrected_val" rows="10"
+                  v-model="correction.val"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm">
+          <div class="item" v-if="correction != null && originalHadith != null">
+            <h3>Diff</h3>
+            <div v-html="this.diff">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row" v-if="correction != null">
+        <div class="col">
+          <div class="item" v-if="correction != null && originalHadith != null">
+            <h3>Preview</h3>
+            <div v-html="correction.val">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row" v-if="correction != null">
+        <div class="col">
+          <div class="row">
+            <div class="col">
+              <button class="btn btn-primary border" v-on:click="accept">Accept</button>
+              <button type="button" class="btn btn-danger border" v-on:click="reject">Reject</button>
+              <button type="button" class="btn btn-info border" v-on:click="skip">Skip</button>
+              <div class="dropdown border d-inline">
+                <button type="button" class="btn btn-secondary dropdown-toggle" id="queueUpdateDropdown"
+                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Move to</button>
+                <div class="dropdown-menu" aria-labelledby="queueUpdateDropdown">
+                  <a v-for="queue in queues" class="dropdown-item" href="#"
+                    v-on:click="move(queue.name)">{{queue.name}}</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <div class="form-group form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="checkbox" v-model="addModeratorComment" />
+                <label class="form-check-label" for="checkbox">Add Message</label>
+              </div>
+              <textarea class="form-control" rows="5" v-model="moderatorComment" v-if="addModeratorComment"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  {% endraw %}
+</correction-view>
 {% endblock %}
 
 {% block script %}
-  <script src="{{ url_for('static', filename='js/diff_match_patch.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script src="{{ url_for('static', filename='js/diff_match_patch.js') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
 {% endblock %}

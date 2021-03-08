@@ -1,4 +1,4 @@
-from flask import render_template, current_app
+from flask import render_template_string, current_app
 from extensions import mail
 import os
 
@@ -50,7 +50,7 @@ class EMail:
             elif "html" in kwargs:
                 raise Exception("You cannot have both a template and html arg.")
 
-            kwargs["html"] = render_template(template, **ctx)
+            kwargs["html"] = render_template_string(template, **ctx)
 
         self.m.send_message(
             sender=current_app.config["MAIL_DEFAULT_SENDER"],

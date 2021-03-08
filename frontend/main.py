@@ -2,18 +2,19 @@ import requests
 import boto3
 import pymysql.cursors
 import time
-from decimal import Decimal
-from datetime import datetime, timedelta
-from functools import wraps
 from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError
+from datetime import datetime, timedelta
+from decimal import Decimal
+from extensions import mail
 from flask import Flask, jsonify, make_response, redirect, render_template, request
 from flask_awscognito import AWSCognitoAuthentication
-from werkzeug.exceptions import NotFound
-from extensions import mail
-from botocore.exceptions import ClientError
-from lib.mail import EMail
+from functools import wraps
 from lib.data.archive_item import ArchiveItem
 from lib.data.archive_repository import ArchiveRepository
+from lib.mail import EMail
+from pathlib import Path
+from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
 app.config.from_object("config.Config")
@@ -46,7 +47,11 @@ def home(access_token):
 
     username = request.cookies.get("username")
     return render_template(
-        "index.html", access_token=access_token, username=username, queue_name="global"
+        "index.html", 
+        access_token=access_token, 
+        username=username, 
+        queue_name="global",
+        email_template=Path('templates/email.html').read_text()
     )
 
 
@@ -161,20 +166,20 @@ def resolve_correction(queue_name, correction_id):
         )
 
     action = data["action"]
-    moderator_comment = data.get("moderatorComment", "")
+    email_template = data.get("emailTemplate", "")
     version = data.get("version", 0)
     username = request.cookies.get("username")
 
     if action == "reject":
         return reject_correction(
-            queue_name, correction_id, moderator_comment, version, username
+            queue_name, correction_id, email_template, version, username
         )
 
     elif action == "approve":
         return approve_correction(
             queue_name,
             correction_id,
-            moderator_comment,
+            email_template,
             version,
             username,
             data["corrected_val"],
@@ -218,18 +223,19 @@ def sign_in():
     return redirect(aws_auth.get_sign_in_url())
 
 
-def reject_correction(queue_name, correction_id, moderator_comment, version, username):
+def reject_correction(queue_name, correction_id, email_template, version, username):
     correction = read_correction(queue_name, correction_id, version)
     if not correction:
         return not_found(correction_id)
-    send_email("rejected", correction, moderator_comment)
+    if email_template:
+        send_email("rejected", correction, email_template)
     return archive_correction(
-        queue_name, correction_id, version, username, moderator_comment
+        queue_name, correction_id, version, username
     )
 
 
 def approve_correction(
-    queue_name, correction_id, moderator_comment, version, username, corrected_val
+    queue_name, correction_id, email_template, version, username, corrected_val
 ):
     try:
         correction = read_correction(queue_name, correction_id, version)
@@ -244,13 +250,13 @@ def approve_correction(
             archive_correction(
                 queue_name,
                 correction_id,
-                username,
-                moderator_comment,
+                username,                
                 corrected_val,
                 True,
             )
 
-            send_email("approved", correction, moderator_comment, corrected_val)
+            if email_template:
+                send_email("approved", correction, email_template, corrected_val)
             return jsonify(
                 create_response_message(True, "Successfully updated hadith text")
             )
@@ -279,16 +285,16 @@ def get_dynamo_db():
 def send_email(
     decision: str,
     correction: dict,
-    moderator_comment: str = "",
+    email_template: str = "",
     corrected_val: str = "",
 ):
     email = EMail()
     ctx = dict(
         **correction,
-        **{"moderatorComment": moderator_comment, "correctedVal": corrected_val},
+        **{"decision": decision, "correctedVal": corrected_val},
     )
     email.send(
-        template=f"email/{decision}.html",
+        template=email_template,
         ctx=ctx,
         subject=f"Your correction has been {decision}",
         recipients=[correction["submittedBy"]],
@@ -360,7 +366,6 @@ def archive_correction(
     correction_id: str,
     version: int,
     username: str,
-    moderator_comment: str = "",
     corrected_val: str = None,
     approved: bool = False,
 ):
@@ -379,7 +384,6 @@ def archive_correction(
             **correction,
             **{
                 "modifiedBy": username,
-                "moderatorComment": moderator_comment,
                 "correctedVal": corrected_val,
                 "approved": approved,
             },

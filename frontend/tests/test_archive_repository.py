@@ -39,7 +39,6 @@ class TestArchiveRepository(unittest.TestCase):
             "modifiedBy": "me@email.com",
             "modifiedOn": now,
             "correctedVal": "corrected value",
-            "moderatorComment": "ok",
             "approved": False,
         }
 
@@ -55,7 +54,6 @@ class TestArchiveRepository(unittest.TestCase):
             "submittedBy": "me@email.com",
             "modifiedBy": "me@email.com",
             "correctedVal": "corrected value",
-            "moderatorComment": "ok",
             "approved": False,
             "modifiedOn": now,
         }
@@ -70,7 +68,6 @@ class TestArchiveRepository(unittest.TestCase):
         assert item.submitted_by == "me@email.com"
         assert item.modified_by == "me@email.com"
         assert item.corrected_val == "corrected value"
-        assert item.moderator_comment == "ok"
         assert item.is_approved == False
         assert item.modified_on == now
 

@@ -9,8 +9,7 @@ Vue.component('correction-view', {
       queueName: this.queue,
       diff: null,
       addModeratorComment: false,
-      moderatorComment: '',
-      queues: []
+      queues: [],
     };
   },
   mounted: function () {
@@ -37,7 +36,6 @@ Vue.component('correction-view', {
   },
   methods: {
     reset: function () {
-      this.moderatorComment = '';
       this.addModeratorComment = false;
       this.errors.splice(0, this.errors.length);
       this.correction = null;
@@ -127,13 +125,13 @@ Vue.component('correction-view', {
       this.execAction('approve', {
         corrected_val: this.correction.val,
         version: this.correction.version,
-        moderatorComment: this.moderatorComment,
+        emailTemplate: this.emailTemplate,
       })
     },
     reject: function () {
       this.execAction('reject', {
         version: this.correction.version,
-        moderatorComment: this.moderatorComment,
+        emailTemplate: this.emailTemplate,
       });
     },
     skip: function () {
@@ -165,7 +163,7 @@ Vue.component('correction-view', {
   },
   watch: {
     addModeratorComment: function (val) {
-      if (!val) this.moderatorComment = '';
+      this.emailTemplate = val ? originalEmailTemplate : '';
     }
   }
 });

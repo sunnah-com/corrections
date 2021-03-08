@@ -11,7 +11,9 @@
         font-size: 14px;
         line-height: 1.5;
       }
-
+      .rejected {
+            color: darkred;
+      }
       .approved {
         color: #5f9999;
       }
@@ -28,9 +30,8 @@
       <span><b>Modifications: </b>{{val | safe}}</span>
     </p>
     <p>
-      <span>We are glad to inform you that your request has been
-        <span class="approved">approved</span> by our moderators.</span><br/>
-      <span>{{moderatorComment}}</span>
+      <span>We would like to inform you that your request has been
+        <span class="{{decision}}">{{decision}}</span> by our moderators.</span><br/>
     </p>
     <p>We sincierely appreciate your time for supporting our mission.</p>
     <p>

@@ -11,7 +11,8 @@ exports.handler = async (event, context) => {
         Item: JSON.parse(event)
     };
 
-    payload.Item.id = new Date().getTime() + ':' + context.awsRequestId;
+    if (!payload.Item.id)
+        payload.Item.id = new Date().getTime() + ':' + context.awsRequestId;
     payload.Item.lastAssigned = null;
     payload.Item.version = 0;
     

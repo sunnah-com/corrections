@@ -43,5 +43,5 @@ class Config(object):
     MAIL_PASSWORD = "{MAIL_PASSWORD}".format(**os.environ)
 
     # Queues
-    QUEUES = "{QUEUES}".format(**os.environ)
+    QUEUES = "{QUEUES}".format(**os.environ).split(",")
 

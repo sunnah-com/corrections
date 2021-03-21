@@ -21,14 +21,17 @@ app.config.from_object("config.Config")
 
 aws_auth = AWSCognitoAuthentication(app)
 
-mysql_properties = {
+MYSQL_PROPS = {
     "user": app.config["MYSQL_USER"],
     "password": app.config["MYSQL_PASSWORD"],
     "host": app.config["MYSQL_HOST"],
     "db": app.config["MYSQL_DATABASE"],
 }
 
-logout_url = f"https://{app.config['AWS_COGNITO_DOMAIN']}/logout?client_id={app.config['AWS_COGNITO_USER_POOL_CLIENT_ID']}&logout_uri={app.config['AWS_COGNITO_LOGOUT_URL']}"
+LOGOUT_URL = f"https://{app.config['AWS_COGNITO_DOMAIN']}/logout?client_id={app.config['AWS_COGNITO_USER_POOL_CLIENT_ID']}&logout_uri={app.config['AWS_COGNITO_LOGOUT_URL']}"
+
+ALL_QUEUES = app.config["QUEUES"]
+
 
 def ensure_signin(view):
     @ wraps(view)
@@ -49,11 +52,11 @@ def home(access_token):
     username = request.cookies.get("username")
     return render_template(
         "index.html",
-        access_token = access_token,
-        username = username,
-        logout_url = logout_url,
-        queue_name = "global",
-        email_template = Path('templates/email.html').read_text()
+        access_token=access_token,
+        username=username,
+        LOGOUT_URL=LOGOUT_URL,
+        queue_name=ALL_QUEUES[0],
+        email_template=Path('templates/email.html').read_text()
     )
 
 
@@ -148,8 +151,7 @@ def get_hadith(urn: int):
 @app.route("/queues/", methods=["GET"])
 @aws_auth.authentication_required
 def get_queues():
-    queue_names = app.config["QUEUES"].split(",")
-    queues = [{"name": queue_name} for queue_name in queue_names]
+    queues = [{"name": name} for name in ALL_QUEUES]
     return jsonify(queues)
 
 
@@ -203,6 +205,7 @@ def resolve_correction(queue_name, correction_id):
             )
         )
 
+
 @app.route("/logout")
 def logout():
     response = make_response(redirect("/"))
@@ -223,7 +226,8 @@ def aws_cognito_redirect():
         expires=expires,
         httponly=True,
     )
-    response.set_cookie("access_token", access_token, expires=expires, httponly=True)
+    response.set_cookie("access_token", access_token,
+                        expires=expires, httponly=True)
     return response
 
 
@@ -259,15 +263,17 @@ def approve_correction(
             archive_correction(
                 queue_name,
                 correction_id,
-                username,                
+                username,
                 corrected_val,
                 True,
             )
 
             if email_template:
-                send_email("approved", correction, email_template, corrected_val)
+                send_email("approved", correction,
+                           email_template, corrected_val)
             return jsonify(
-                create_response_message(True, "Successfully updated hadith text")
+                create_response_message(
+                    True, "Successfully updated hadith text")
             )
         else:
             return jsonify(
@@ -311,7 +317,7 @@ def send_email(
 
 
 def save_correction_to_hadith_table(urn: int, corrected_val: str):
-    conn = pymysql.connect(**mysql_properties)
+    conn = pymysql.connect(**MYSQL_PROPS)
     cursor = conn.cursor()
     query = "UPDATE bukhari_english SET hadithText = %(hadith_text)s WHERE englishURN = %(urn)s;"
     cursor.execute(query, {"hadith_text": corrected_val, "urn": urn})

@@ -3,7 +3,7 @@
 {% block content %}
 <h3>Welcome {{ username }}!</h3>
 <script type="text/javascript">
-  originalEmailTemplate = {{email_template|tojson}};
+  originalEmailTemplate = {{ email_template | tojson }};
 </script>
 <correction-view inline-template token="{{ access_token }}" queue="{{ queue_name }}">
   {% raw %}
@@ -23,8 +23,8 @@
               {{queueName}}
             </button>
             <div class="dropdown-menu" aria-labelledby="queueDropdown">
-              <a class="dropdown-item" href="#" v-on:click="changeQueue('global')">global</a>
-              <a class="dropdown-item" href="#" v-on:click="changeQueue('secondary')">secondary</a>
+              <a v-for="queue in queues" class="dropdown-item" href="#"
+                v-on:click="changeQueue(queue.name)">{{queue.name}}</a>
             </div>
           </div>
         </div>

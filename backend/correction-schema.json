@@ -1,0 +1,65 @@
+{
+    "type": "object",
+    "title": "The root schema",
+    "description": "The root schema comprises the entire JSON document.",
+    "default": {},
+    "required": [
+        "urn",
+        "attr",
+        "val",
+        "lang",
+        "queue",
+        "submittedBy"
+    ],
+    "properties": {
+        "id": {
+            "type": "string",
+            "title": "The id schema",
+            "description": "A unique identifier for the correction.",
+            "default": ""
+        },
+        "urn": {
+            "type": "string",
+            "title": "The urn schema",
+            "description": "The unique identifier of the hadith.",
+            "default": ""
+        },
+        "attr": {
+            "type": "string",
+            "title": "The attr schema",
+            "description": "The attribute of hadith that is being corrected.",
+            "default": ""
+        },
+        "val": {
+            "type": "string",
+            "title": "The val schema",
+            "description": "The corrected value.",
+            "default": ""
+        },
+        "lang": {
+            "type": "string",
+            "title": "The lang schema",
+            "description": "The language code for the hadith.",
+            "default": ""
+        },
+        "comment": {
+            "type": "string",
+            "title": "The comment schema",
+            "description": "A comment to explain the correction.",
+            "default": ""
+        },
+        "queue": {
+            "type": "string",
+            "title": "The queue schema",
+            "description": "The name of the queue to submit correction to.",
+            "default": ""
+        },
+        "submittedBy": {
+            "type": "string",
+            "title": "The submittedBy schema",
+            "description": "The email of the submitter",
+            "default": ""
+        }
+    },
+    "additionalProperties": true
+}

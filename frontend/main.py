@@ -28,9 +28,10 @@ mysql_properties = {
     "db": app.config["MYSQL_DATABASE"],
 }
 
+logout_url = f"https://{app.config['AWS_COGNITO_DOMAIN']}/logout?client_id={app.config['AWS_COGNITO_USER_POOL_CLIENT_ID']}&logout_uri={app.config['AWS_COGNITO_LOGOUT_URL']}"
 
 def ensure_signin(view):
-    @wraps(view)
+    @ wraps(view)
     def decorated(*args, **kwargs):
         access_token = request.cookies.get("access_token")
         if access_token == None:
@@ -41,17 +42,18 @@ def ensure_signin(view):
     return decorated
 
 
-@app.route("/", methods=["GET"])
-@ensure_signin
+@ app.route("/", methods=["GET"])
+@ ensure_signin
 def home(access_token):
 
     username = request.cookies.get("username")
     return render_template(
-        "index.html", 
-        access_token=access_token, 
-        username=username, 
-        queue_name="global",
-        email_template=Path('templates/email.html').read_text()
+        "index.html",
+        access_token = access_token,
+        username = username,
+        logout_url = logout_url,
+        queue_name = "global",
+        email_template = Path('templates/email.html').read_text()
     )
 
 
@@ -200,6 +202,13 @@ def resolve_correction(queue_name, correction_id):
                 'Please provide valid action param "reject", "skip", or "approve"',
             )
         )
+
+@app.route("/logout")
+def logout():
+    response = make_response(redirect("/"))
+    response.set_cookie("username", "", expires=0)
+    response.set_cookie("access_token", "", expires=0)
+    return response
 
 
 @app.route("/aws_cognito_redirect")

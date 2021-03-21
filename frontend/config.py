@@ -24,6 +24,7 @@ class Config(object):
         "{AWS_COGNITO_USER_POOL_CLIENT_SECRET}".format(**os.environ)
     )
     AWS_COGNITO_REDIRECT_URL = "{AWS_COGNITO_REDIRECT_URL}".format(**os.environ)
+    AWS_COGNITO_LOGOUT_URL = "{AWS_COGNITO_LOGOUT_URL}".format(**os.environ)
 
     MYSQL_USER = "{MYSQL_USER}".format(**os.environ)
     MYSQL_PASSWORD = "{MYSQL_PASSWORD}".format(**os.environ)

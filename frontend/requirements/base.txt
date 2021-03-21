@@ -14,7 +14,7 @@ flask-swagger==0.2.14
 Flask-Mail==0.9.1   
 idna==2.10
 itsdangerous==1.1.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 jmespath==0.10.0
 lazy-object-proxy==1.4.3
 MarkupSafe==1.1.1
@@ -33,6 +33,6 @@ s3transfer==0.3.3
 six==1.15.0
 toml==0.10.1
 typed-ast==1.4.1
-urllib3==1.26.2
+urllib3==1.26.3
 Werkzeug==1.0.1
 wrapt==1.12.1

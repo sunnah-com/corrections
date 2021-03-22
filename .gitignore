@@ -3,6 +3,7 @@ __pycache__
 .DS_Store
 **.well-known/
 
+.idea/
 .vscode/
 .coverage
 venv

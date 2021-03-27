@@ -1,3 +1,7 @@
+/*=======================================================*/
+/* base */
+/*=======================================================*/
+
 html, body {
   margin: 0;
   padding: 0;
@@ -6,6 +10,7 @@ html, body {
 body {
   background: #F3F5F7;
   font-family: Helvetica Neue, serif;
+  padding-bottom: 60px;
 }
 
 * {
@@ -21,9 +26,15 @@ ul {
   margin: 0;
 }
 
-.container {width: 1140px;
+.container {
+  width: 1140px;
   margin: 0 auto;
+  position: relative;
 }
+
+/*=======================================================*/
+/* header */
+/*=======================================================*/
 
 .header {
   background: #FFFFFF;
@@ -75,13 +86,24 @@ ul {
 
 .headerNav__itemLink:hover {
   background: #f0f0f0;
+  color: #495459;
+  text-decoration: none;
 }
 
-.headerNav__item--active .headerNav__itemLink{
+.headerNav__item--active .headerNav__itemLink {
 
 }
 
-.guestMessage {
+/*=======================================================*/
+/* guest message section
+/*=======================================================*/
+.guestMessageSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.guestMessageSection__message {
   font-size: 44px;
   font-style: normal;
   font-weight: 700;
@@ -90,10 +112,20 @@ ul {
   color: #333333;
 }
 
+.topActionBar {
+  margin-top: -60px;
+  position: absolute;
+  right: 15px;
+}
+
+/*=======================================================*/
+/* Hadith editable section */
+/*=======================================================*/
 .hadithEditableSections {
   display: flex;
   justify-content: space-between;
   height: 495px;
+  margin-bottom: 30px;
 }
 
 .hadithEditableSections__section {
@@ -176,4 +208,157 @@ ul {
 
 .hadithEditableSections__textarea[readonly] {
   background: #F8F8F8;
+}
+
+/*=======================================================*/
+/* Preview section */
+/*=======================================================*/
+.previewSection {
+  background: #FFFFFF;
+  border-radius: 16px;
+}
+
+.previewSection__content {
+  padding: 24px 24px 0;
+  border-bottom: 1px solid #EDF1F3;
+}
+
+.previewSection__title {
+  font-style: normal;
+  font-weight: bold;
+  font-size: 30px;
+  color: #333333;
+  margin: 0 0 24px;
+}
+
+.previewSection__previewText {
+  font-family: Noto Serif, serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  color: #333333;
+}
+
+.previewActionBar {
+  padding: 24px;
+  border-bottom: 1px solid #EDF1F3;
+  display: flex;
+  justify-content: space-between;
+}
+
+.previewActionBar__leading {
+  display: flex;
+  align-items: center;
+}
+
+.previewActionBar__trailing {
+  display: flex;
+  align-items: center;
+}
+
+.moderatorCommentSection {
+  padding: 24px;
+}
+
+.moderatorCommentSection__textarea {
+  font-family: Noto Serif, serif;
+  height: 100%;
+  width: 100%;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  color: #333333;
+  padding: 16px 24px;
+  margin-top: 16px;
+  border: 1px solid #f0f0f0;
+}
+
+.actionButton {
+  min-width: 100px;
+  height: 37px;
+  line-height: 37px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  text-transform: capitalize;
+  cursor: pointer;
+  opacity: 0.9;
+  margin-left: 16px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.actionButton:first-child {
+  margin-left: 0;
+}
+
+.actionButton:active, .actionButton:focus, .actionButton:focus-within {
+  opacity: 1;
+}
+
+.actionButton--accept {
+  background: #019592;
+  color: white;
+}
+
+.actionButton--reject {
+  background: #B00020;
+  color: white;
+}
+
+.actionButton--skip {
+  color: #019592;
+  border: 1px solid #019592;
+  background: white;
+}
+
+.actionButton--dropdown {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background: #EDF1F3;
+  color: #333333;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  display: none;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 10px 14px 38px -21px rgba(0, 0, 0, 0.75);
+  border: 1px solid #f0f0f0;
+  flex-direction: column;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  overflow: hidden;
+}
+
+.dropdown-menu.show {
+  display: flex;
+}
+
+.dropdown-item {
+  padding: 6px 8px;
+  color: #333333;
+  background: white;
+  transition: 0.3s;
+}
+
+.dropdown-item:hover {
+  background: #f0f0f0;
+}
+
+.actionButton .dropdown-caret {
+  font-size: 8px;
+  margin-left: 8px;
+}
+
+.topActionBar .actionButton--dropdown {
+  background: white;
 }

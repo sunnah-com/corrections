@@ -30,46 +30,30 @@
       crossorigin="anonymous"
     ></script>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-    <script
-      src="https://kit.fontawesome.com/9ac4e99ba9.js"
-      crossorigin="anonymous"
-    ></script>
-  </head>
+</head>
 
-  <body>
-    <div id="app" class="header-container">
-      <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <a class="navbar-brand" href="/">HCA</a>
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="/">Home</a>
+<body>
+    <div id="app">
+      <header class="header">
+        <div class="header__content container">
+          <div class="header__logo"></div>
+          <ul class="headerNav">
+            <li class="headerNav__item">
+              <a class="headerNav__itemLink" href="/">Home</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/archive">Archive</a>
+            <li class="headerNav__item">
+              <a class="headerNav__itemLink" href="/archive">Archive</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/users">Users</a>
+            <li class="headerNav__item">
+              <a class="headerNav__itemLink" href="/users">Users</a>
+            </li>
+            <li class="headerNav__item headerNav__item--logout">
+                <a class="headerNav__itemLink" href="{{ logout_url }}">Logout</a>
             </li>
           </ul>
-          <div class="btn-group">
-            <button
-              type="button"
-              class="btn btn-secondary dropdown-toggle"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              <i class="fas fa-user"></i>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
-              <a class="nav-link" href="/users">{{ username }}</a>
-              <a class="nav-link" href="{{ logout_url }}">Logout</a>
-            </div>
-          </div>
         </div>
-      </nav>
-      <div class="container">{% block content %}{% endblock %}</div>
+      </header>
+        {% block content %}{% endblock %}
     </div>
     {% block script %}{% endblock %}
   </body>

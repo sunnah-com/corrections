@@ -173,7 +173,7 @@ def resolve_correction(queue_name, correction_id):
         return jsonify(
             create_response_message(
                 False,
-                'Please provide valid action param "reject", "skip", or "approve" and "corrected_val" param.',
+                'Please provide valid action param "reject", "skip", or "approve" and "corrected_val" param',
             )
         )
 
@@ -194,7 +194,7 @@ def resolve_correction(queue_name, correction_id):
             email_template,
             version,
             username,
-            data["corrected_val"],
+            data["corrected_val"]
         )
 
     elif action == "skip":
@@ -263,8 +263,14 @@ def approve_correction(
         if not correction:
             return not_found(correction_id)
 
+        attribute = contruct_correction_attribute(
+            correction["attr"]
+        )
+        if not attribute:
+            return invalid_attribute(correction_id)
+        
         rows_affected = save_correction_to_hadith_table(
-            correction["urn"], corrected_val
+            correction["urn"], corrected_val, attribute
         )
 
         if rows_affected > 0:
@@ -273,6 +279,7 @@ def approve_correction(
                 correction_id,
                 username,
                 corrected_val,
+                attribute,
                 True,
             )
 
@@ -281,11 +288,11 @@ def approve_correction(
                            email_template, corrected_val)
             return jsonify(
                 create_response_message(
-                    True, "Successfully updated hadith text.")
+                    True, "Successfully updated hadith")
             )
         else:
             return jsonify(
-                create_response_message(False, "Failed to update hadith text.")
+                create_response_message(False, "Failed to update hadith")
             )
 
     except ClientError as e:
@@ -296,6 +303,17 @@ def approve_correction(
         return jsonify(create_response_message(False, "Error - " + str(exception)))
 
 
+def contruct_correction_attribute(attribute: str):
+    switcher = {
+        "body": "hadithText",
+        "grade": "grade",
+    }
+    res = switcher.get(attribute, "")
+    if res == "":
+        return None
+    return res
+
+  
 def get_dynamo_db():
     dynamodb = boto3.resource(
         "dynamodb",
@@ -324,11 +342,11 @@ def send_email(
     )
 
 
-def save_correction_to_hadith_table(urn: int, corrected_val: str):
+def save_correction_to_hadith_table(urn: int, corrected_val: str, attribute: str):
     conn = pymysql.connect(**MYSQL_PROPS)
     cursor = conn.cursor()
-    query = "UPDATE bukhari_english SET hadithText = %(hadith_text)s WHERE englishURN = %(urn)s;"
-    cursor.execute(query, {"hadith_text": corrected_val, "urn": urn})
+    query = "UPDATE bukhari_english SET {attr} = %(corrected_val)s WHERE englishURN = %(urn)s".format(attr = attribute)
+    cursor.execute(query, {"corrected_val": corrected_val, "urn": urn})
     rows_affected = cursor.rowcount
     conn.commit()
     conn.close()
@@ -390,6 +408,7 @@ def archive_correction(
     version: int,
     username: str,
     corrected_val: str = None,
+    attribute: str = None,
     approved: bool = False,
 ):
     archive_repository = ArchiveRepository(
@@ -408,6 +427,7 @@ def archive_correction(
             **{
                 "modifiedBy": username,
                 "correctedVal": corrected_val,
+                "attribute": attribute,
                 "approved": approved,
             },
         )
@@ -423,6 +443,13 @@ def not_found(correction_id):
     return jsonify(
         create_response_message(
             False, f'Correction with id "{correction_id}" not found.'
+        )
+    )
+
+def invalid_attribute(correction_id):
+    return jsonify(
+        create_response_message(
+            False, f'Correction with id "{correction_id}" has invalid attribute'
         )
     )
 

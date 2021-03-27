@@ -2,13 +2,29 @@
 
 {% block content %}
 <script type="text/javascript">
-  originalEmailTemplate = {{ email_template | tojson }};
+  originalEmailTemplate = {{email_template | tojson}};
 </script>
+
 <correction-view inline-template token="{{ access_token }}" queue="{{ queue_name }}">
   {% raw %}
-  <div>
+  
+  <div class="container">
+    
     {{ message }}
-
+    
+    <section class="topActionBar">
+      <div class="dropdown">
+        <button class="actionButton actionButton--dropdown" type="button" id="queueDropdown" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+          {{queueName}} <span class="dropdown-caret">&#9660;</span>
+        </button>
+        <div class="dropdown-menu" aria-labelledby="queueDropdown">
+          <a v-for="queue in queues" class="dropdown-item" href="#"
+             v-on:click="changeQueue(queue.name)">{{queue.name}}</a>
+        </div>
+      </div>
+    </section>
+    
     <div>
       <div class="row">
         <div class="col">
@@ -16,96 +32,102 @@
           <p v-for="error in errors">
             {{ error }}
           </p>
-          <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="queueDropdown" data-toggle="dropdown"
-              aria-haspopup="true" aria-expanded="false">
-              {{queueName}}
-            </button>
-            <div class="dropdown-menu" aria-labelledby="queueDropdown">
-              <a v-for="queue in queues" class="dropdown-item" href="#"
-                v-on:click="changeQueue(queue.name)">{{queue.name}}</a>
-            </div>
-          </div>
         </div>
       </div>
-      <div class="row" v-if="correction != null">
-        <div class="col-sm">
-          <div id="original" class="item">
-            <h3>Original</h3>
-            <div v-if="originalHadith">
-              <div>
-                <span class="label">Attribute:</span> {{ correction.attr }}
-              </div>
-              <div class="value">
-                <span class="label">Value:</span>
-                <textarea class="form-control" rows="10" readonly>
-                      {{ originalHadith[this.correction.attr] }}
-                    </textarea>
-              </div>
+    </div>
+    
+    <div class="hadithEditableSections" v-if="correction != null">
+      <div class="hadithEditableSections__section">
+        <div class="hadithEditableSections__sectionHead">
+          <h3 class="hadithEditableSections__sectionTitle">Original</h3>
+          <div class="hadithEditableSections__metaData">
+            <div class="hadithEditableSections__metaItem">
+              <div class="hadithEditableSections__metaTitle">Attribute:</div>
+              <div class="hadithEditableSections__metaDesc">{{ correction.attr }}</div>
+            </div>
+            <div class="hadithEditableSections__metaItem hadithEditableSections__metaItem--fullWidth">
+              <div class="hadithEditableSections__metaTitle">Value:</div>
             </div>
           </div>
         </div>
-        <div class="col-sm">
-          <div id="correction" class="item">
-            <h3>Correction</h3>
-            <div>
-              <div class="comment">
-                <span class="label">Comment:</span>
-                <p>{{ correction.comment }}</p>
-              </div>
-              <div>
-                <span class="label">Submitted By:</span> {{ correction.submittedBy }}
-              </div>
-              <div class="value">
-                <span class="label">Value:</span>
-                <textarea @input="checkDiff" class="form-control" name="corrected_val" rows="10"
+        <div id="original" class="hadithEditableSections__sectionContent">
+              <textarea v-if="originalHadith" class="hadithEditableSections__textarea" readonly>
+                {{ originalHadith[this.correction.attr] }}
+              </textarea>
+        </div>
+      </div>
+      <div class="hadithEditableSections__section">
+        <div class="hadithEditableSections__sectionHead">
+          <h3 class="hadithEditableSections__sectionTitle">Correction</h3>
+          <div class="hadithEditableSections__metaData">
+            <div class="hadithEditableSections__metaItem">
+              <div class="hadithEditableSections__metaTitle">Comment:</div>
+              <div class="hadithEditableSections__metaDesc">{{ correction.comment }}</div>
+            </div>
+            <div class="hadithEditableSections__metaItem">
+              <div class="hadithEditableSections__metaTitle">Submitted By:</div>
+              <div class="hadithEditableSections__metaDesc">{{ correction.submittedBy }}</div>
+            </div>
+            <div class="hadithEditableSections__metaItem hadithEditableSections__metaItem--fullWidth">
+              <div class="hadithEditableSections__metaTitle">Value:</div>
+            </div>
+          </div>
+        </div>
+        <div id="correction" class="hadithEditableSections__sectionContent">
+              <textarea
+                  @input="checkDiff"
+                  class="hadithEditableSections__textarea"
+                  name="corrected_val"
                   v-model="correction.val"></textarea>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm">
-          <div class="item" v-if="correction != null && originalHadith != null">
-            <h3>Diff</h3>
-            <div v-html="this.diff">
-            </div>
-          </div>
         </div>
       </div>
-      <div class="row" v-if="correction != null">
-        <div class="col">
-          <div class="item" v-if="correction != null && originalHadith != null">
-            <h3>Preview</h3>
-            <div v-html="correction.val">
-            </div>
-          </div>
+      <div class="hadithEditableSections__section">
+        <div class="hadithEditableSections__sectionHead">
+          <h3 class="hadithEditableSections__sectionTitle">Diff</h3>
         </div>
-      </div>
-      <div class="row" v-if="correction != null">
-        <div class="col">
-          <div class="item">
-            <button class="btn btn-primary border" v-on:click="accept">Accept</button>
-            <button type="button" class="btn btn-danger border" v-on:click="reject">Reject</button>
-            <button type="button" class="btn btn-info border" v-on:click="skip">Skip</button>
-            <div class="dropdown border d-inline">
-              <button type="button" class="btn btn-secondary dropdown-toggle" id="queueUpdateDropdown"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Move to</button>
-              <div class="dropdown-menu" aria-labelledby="queueUpdateDropdown">
-                <a v-for="queue in queues" class="dropdown-item" href="#"
-                  v-on:click="move(queue.name)">{{queue.name}}</a>
-              </div>
-              <div class="form-group form-check mt-2">
-                <input type="checkbox" class="form-check-input" id="checkbox" v-model="addModeratorComment" />
-                <label class="form-check-label" for="checkbox">Add Message</label>
-              </div>
-              <textarea class="form-control" rows="20" v-model="emailTemplate" v-if="addModeratorComment"></textarea>
-            </div>
-          </div>
+        <div class="hadithEditableSections__sectionContent" v-if="correction != null && originalHadith != null">
+          <div v-html="this.diff" class="hadithEditableSections__textarea" />
         </div>
       </div>
     </div>
   </div>
-  </div>
+  
+  <section class="previewSection">
+    <div class="previewSection__content">
+      <h3 class="previewSection__title">Preview</h3>
+      <div class="item" v-if="correction != null && originalHadith != null">
+        <div v-html="correction.val"></div>
+      </div>
+    </div>
+    <div class="previewActionBar" v-if="correction != null">
+      <div class="previewActionBar__leading">
+        <button class="actionButton actionButton--accept" v-on:click="accept">Accept</button>
+        <button type="button" class="actionButton actionButton--reject" v-on:click="reject">Reject</button>
+      </div>
+      
+      <div class="previewActionBar__trailing">
+        <div class="dropdown">
+          <button type="button" class="actionButton actionButton--dropdown" id="queueUpdateDropdown"
+                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Move to
+            <span class="dropdown-caret">&#9660;</span>
+          </button>
+          <div class="dropdown-menu" aria-labelledby="queueUpdateDropdown">
+            <a v-for="queue in queues" class="dropdown-item" href="#"
+               v-on:click="move(queue.name)">{{queue.name}}</a>
+          </div>
+        </div>
+        <button type="button" class="actionButton actionButton--skip" v-on:click="skip">Skip</button>
+      </div>
+    </div>
+    <div class="moderatorCommentSection">
+      <div class="moderatorCommentSection__checkbox">
+        <input type="checkbox" class="form-check-input" id="checkbox" v-model="addModeratorComment" />
+        <label class="form-check-label" for="checkbox">Add Message</label>
+      </div>
+      <textarea class="moderatorCommentSection__textarea" rows="20" v-model="emailTemplate" v-if="addModeratorComment"></textarea>
+    </div>
+  </section>
+  </section>
   {% endraw %}
 </correction-view>
 {% endblock %}

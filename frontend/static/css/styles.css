@@ -258,6 +258,11 @@ ul {
   padding: 24px;
 }
 
+.moderatorCommentSection__checkbox {
+  margin-left: 24px;
+  cursor: pointer;
+}
+
 .moderatorCommentSection__textarea {
   font-family: Noto Serif, serif;
   height: 100%;

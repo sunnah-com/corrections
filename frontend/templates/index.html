@@ -2,7 +2,7 @@
 
 {% block content %}
 <script type="text/javascript">
-  originalEmailTemplate = {{ email_template | tojson }};
+  originalEmailTemplate = {{email_template | tojson}};
 </script>
 
 <correction-view inline-template token="{{ access_token }}" queue="{{ queue_name }}">
@@ -120,7 +120,7 @@
       </div>
     </div>
     <div class="moderatorCommentSection">
-      <div class="form-group form-check mt-2">
+      <div class="moderatorCommentSection__checkbox">
         <input type="checkbox" class="form-check-input" id="checkbox" v-model="addModeratorComment" />
         <label class="form-check-label" for="checkbox">Add Message</label>
       </div>

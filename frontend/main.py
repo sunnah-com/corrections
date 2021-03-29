@@ -67,6 +67,7 @@ def users(access_token):
     username = request.cookies.get("username")
     return render_template("users.html", access_token=access_token, username=username)
 
+
 @app.route("/archive", methods=["GET"])
 @ensure_signin
 def archive(access_token):

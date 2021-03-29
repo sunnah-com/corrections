@@ -88,10 +88,34 @@ Vue.component('correction-view', {
     downloadHadith: async function (hadithUrn) {
       try {
         const result = await this.fetchJsonData(`/hadiths/${hadithUrn}`);
+        /*
+        {
+        "collection": "bukhari",
+        "bookNumber": "1",
+        "chapterId": "1",
+        "hadithNumber": "1",
+        "hadith": [{
+              "lang": "en",
+              "chapterNumber": "1",
+              "chapterTitle": "title goes here",
+              "urn": 10,
+              "body": "hadith text goes here",
+              "grades": [{
+                      "graded_by": "authority",
+                      "grade": "Sahih"
+                }]
+          }]
+        }*/
         if (result && result.length != 0) {
+          // TODO: move this logic to python
+          // flatten the hadith by plucking the lang specific data 
+          // and merge it with the root
           for (var i = 0; i < result.hadith.length; i++) {
             if (result.hadith[i].lang === this.correction.lang) {
-              this.originalHadith = result.hadith[i];
+              let hadith = Object.assign({}, result, result.hadith[i]);
+              // delete data for other languages
+              delete hadith.hadith;
+              this.originalHadith = hadith;
               break;
             }
           }
@@ -111,9 +135,11 @@ Vue.component('correction-view', {
       }
     },
     checkDiff: function () {
+      if (this.originalHadith == null || this.correction == null) return;
+
       const dmp = new diff_match_patch();
       this.diff = dmp.diff_prettyHtml(dmp.diff_main(
-        this.originalHadith.body,
+        this.originalHadith[correction.attr],
         this.correction.val
       )).replaceAll('&para;<br>', '<br/>');
     },

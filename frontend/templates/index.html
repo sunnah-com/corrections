@@ -42,6 +42,14 @@
           <h3 class="hadithEditableSections__sectionTitle">Original</h3>
           <div class="hadithEditableSections__metaData">
             <div class="hadithEditableSections__metaItem">
+              <div class="hadithEditableSections__metaTitle">Collection:</div>
+              <div class="hadithEditableSections__metaDesc"><span v-if="originalHadith">{{ originalHadith.collection }}</span></div>
+            </div>
+            <div class="hadithEditableSections__metaItem">
+              <div class="hadithEditableSections__metaTitle">Urn:</div>
+              <div class="hadithEditableSections__metaDesc"><a v-if="originalHadith" target="_blank" :href="'http://sunnah.com/urn/' + originalHadith.urn">{{ originalHadith.urn }}</a></div>
+            </div>
+            <div class="hadithEditableSections__metaItem">
               <div class="hadithEditableSections__metaTitle">Attribute:</div>
               <div class="hadithEditableSections__metaDesc">{{ correction.attr }}</div>
             </div>
@@ -60,6 +68,10 @@
         <div class="hadithEditableSections__sectionHead">
           <h3 class="hadithEditableSections__sectionTitle">Correction</h3>
           <div class="hadithEditableSections__metaData">
+            <div class="hadithEditableSections__metaItem">
+              <div class="hadithEditableSections__metaTitle">Id:</div>
+              <div class="hadithEditableSections__metaDesc">{{ correction.id }}</div>
+            </div>
             <div class="hadithEditableSections__metaItem">
               <div class="hadithEditableSections__metaTitle">Comment:</div>
               <div class="hadithEditableSections__metaDesc">{{ correction.comment }}</div>

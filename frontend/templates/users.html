@@ -2,60 +2,62 @@
 
 {% block content %}
     <div class="p-3">
-        <div class="container">
-            <h4>Users manager</h4>
-        </div>
         <users-view inline-template>
             {%raw%}
             <div class="container">
-                <div class="d-flex justify-content-between my-3">
-                    <div style="width: 300px;">
-                        <input 
-                            type="text" 
-                            class="form-control" 
-                            placeholder="Search user..." 
-                            v-model="search">
+                <section class="previewSection">
+                    <div class="previewSection__content">
+                        <h3 class="previewSection__title">Users manager</h3>
                     </div>
-                </div>
-                <div class="responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Username</th>
-                                <th scope="col">Roles</th>
-                                <th scope="col">Queues</th>
-                                <th class="text-center" scope="col">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="i in usersData">
-                                <td>{{i.username}}</td>
-                                <td>
-                                    <span 
-                                        class="badge rounded-pill bg-success text-white" 
-                                        v-if="i.permissions && i.permissions.manage_users"
-                                    >Manage users</span>
-                                    <span 
-                                        class="badge rounded-pill bg-success text-white" 
-                                        v-if="i.permissions && i.permissions.view_archive"
-                                    >View archive</span>
-                                </td>
-                                <td>
-                                    <span class="mr-1 badge rounded-pill bg-secondary text-white" v-for="q in i.permissions.queues">
-                                        {{q}}
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="text-center">
-                                        <a href="#" @click="handleEditUser(i)">
-                                            <i class="far fa-edit"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                    <div class="d-flex justify-content-between my-3 px-3">
+                        <div style="width: 300px;">
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                placeholder="Search user..." 
+                                v-model="search">
+                        </div>
+                    </div>
+                    <div class="responsive px-3 pb-5">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Username</th>
+                                    <th scope="col">Roles</th>
+                                    <th scope="col">Queues</th>
+                                    <th class="text-center" scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="i in usersData">
+                                    <td>{{i.username}}</td>
+                                    <td>
+                                        <span 
+                                            class="badge rounded-pill bg-success text-white" 
+                                            v-if="i.permissions && i.permissions.manage_users"
+                                        >Manage users</span>
+                                        <span 
+                                            class="badge rounded-pill bg-success text-white" 
+                                            v-if="i.permissions && i.permissions.view_archive"
+                                        >View archive</span>
+                                    </td>
+                                    <td>
+                                        <span class="mr-1 badge rounded-pill bg-secondary text-white" v-for="q in i.permissions.queues">
+                                            {{q}}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="text-center">
+                                            <a href="#" @click="handleEditUser(i)">
+                                                <i class="far fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
                 
                 <!-- modal -->
                 <div class="modal fade" id="add-user-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

@@ -39,19 +39,10 @@ Vue.component('users-view', {
         })
         .then(response => response.json())
         .then(response => {
-          console.log(response);
           this.users = response;
-          // this.reloadData();
           resolve(response);
         })
       })
-    },
-    handleAddUserModal () {
-      $('#add-user-modal').modal();
-      this.username = '';
-      this.roleValue = []
-      this.queueValue = [];
-      this.showModalContent = true;
     },
     handleEditUser (selectedUser = {}) {
       this.username = selectedUser.username;
@@ -74,11 +65,6 @@ Vue.component('users-view', {
       this.queueValue = [];
       $('#add-user-modal').modal('hide');
     },
-    handleDelete () {
-      if (confirm('Are you sure want to delete this user?')) {
-        console.log('deleted!');
-      }
-    }
   },
   computed: {
     usersData () {
@@ -91,9 +77,9 @@ Vue.component('users-view', {
       return users;
     }
   },
-  mounted: async function () {
-    await this.getUsers();
+  mounted: function () {
     const vm = this;
+    vm.getUsers();
     $('#add-user-modal').on('hidden.bs.modal', function (event) {
       vm.closeModal();
     })

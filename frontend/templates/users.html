@@ -2,21 +2,20 @@
 
 {% block content %}
     <div class="p-3">
-        <h3>Users manager</h3>
+        <div class="container">
+            <h4>Users manager</h4>
+        </div>
         <users-view inline-template>
             {%raw%}
-            <div>
+            <div class="container">
                 <div class="d-flex justify-content-between my-3">
-                    <div style="width: 250px;">
+                    <div style="width: 300px;">
                         <input 
                             type="text" 
                             class="form-control" 
                             placeholder="Search user..." 
                             v-model="search">
                     </div>
-                    <a id="add-button" class="btn btn-primary" @click="handleAddUserModal">
-                        Add user
-                    </a>
                 </div>
                 <div class="responsive">
                     <table class="table">
@@ -25,7 +24,7 @@
                                 <th scope="col">Username</th>
                                 <th scope="col">Roles</th>
                                 <th scope="col">Queues</th>
-                                <th scope="col">Action</th>
+                                <th class="text-center" scope="col">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -47,12 +46,9 @@
                                     </span>
                                 </td>
                                 <td>
-                                    <div>
-                                        <a href="javascript:;" @click="handleEditUser(i)">
+                                    <div class="text-center">
+                                        <a href="#" @click="handleEditUser(i)">
                                             <i class="far fa-edit"></i>
-                                        </a> &nbsp;
-                                        <a href="javascript:;" class="text-danger" @click="handleDelete">
-                                            <i class="far fa-trash-alt"></i>
                                         </a>
                                     </div>
                                 </td>

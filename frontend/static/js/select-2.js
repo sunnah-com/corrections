@@ -14,15 +14,8 @@ Vue.component('select-2', {
   },
   data() {
     return {
-      select2data: [],
-      select2Instance: null
+      optionsData: [],
     }
-  },
-  watch: {
-    // value (val) {
-      // console.log(val);
-      // this.select2Instance.val(this.value).trigger('change')
-    // }
   },
   mounted() {
     this.formatOptions()
@@ -34,18 +27,17 @@ Vue.component('select-2', {
       theme: 'bootstrap',
       width: '100%',
       allowClear: true,
-      data: this.select2data
+      data: this.optionsData
     })
       .on('change', function () {
       vm.$emit('input', select.val())
     })
     select.val(this.value).trigger('change')
-    // this.select2Instance = select;
   },
   methods: {
     formatOptions() {
       for (let key in this.options) {
-        this.select2data.push({ id: this.options[key].id, text: this.options[key].text })
+        this.optionsData.push({ id: this.options[key].id, text: this.options[key].text })
       }
     }
   },

@@ -68,6 +68,14 @@ def users(access_token):
     return render_template("users.html", access_token=access_token, username=username)
 
 
+@app.route("/archive", methods=["GET"])
+@ensure_signin
+def archive(access_token):
+
+    username = request.cookies.get("username")
+    return render_template("archive.html", access_token=access_token, username=username)
+
+
 @app.route("/corrections/<string:queue_name>", methods=["GET"])
 @aws_auth.authentication_required
 def get_correction(queue_name):

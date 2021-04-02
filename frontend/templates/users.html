@@ -1,5 +1,123 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-    <h3>Users</h3>
+    <div class="p-3">
+        <users-view inline-template>
+            {%raw%}
+            <div class="container">
+                <section class="previewSection">
+                    <div class="previewSection__content">
+                        <h3 class="previewSection__title">Users manager</h3>
+                    </div>
+                    <div class="d-flex justify-content-between my-3 px-3">
+                        <div style="width: 300px;">
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                placeholder="Search user..." 
+                                v-model="search">
+                        </div>
+                    </div>
+                    <div class="responsive px-3 pb-5">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Username</th>
+                                    <th scope="col">Roles</th>
+                                    <th scope="col">Queues</th>
+                                    <th class="text-center" scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="i in usersData">
+                                    <td>{{i.username}}</td>
+                                    <td>
+                                        <span 
+                                            class="badge rounded-pill bg-success text-white" 
+                                            v-if="i.permissions && i.permissions.manage_users"
+                                        >Manage users</span>
+                                        <span 
+                                            class="badge rounded-pill bg-success text-white" 
+                                            v-if="i.permissions && i.permissions.view_archive"
+                                        >View archive</span>
+                                    </td>
+                                    <td>
+                                        <span class="mr-1 badge rounded-pill bg-secondary text-white" v-for="q in i.permissions.queues">
+                                            {{q}}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="text-center">
+                                            <a href="#" @click="handleEditUser(i)">
+                                                <i class="far fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <!-- modal -->
+                <div class="modal fade" id="add-user-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">{{ isNewUserModal ? 'Add new user' : 'Edit user'}}</h5>
+                          <button type="button" class="close" @click="closeModal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <div v-if="showModalContent">
+                              <div class="form-group">
+                                  <label for="">Username</label>
+                                  <input
+                                    :disabled="!isNewUserModal"
+                                    required 
+                                    v-model="username"
+                                    placeholder="Username" 
+                                    type="text" 
+                                    class="form-control">
+                              </div>
+                              <div class="form-group">
+                                <label for="">Roles</label>
+                                <select-2 
+                                    name="role" 
+                                    id="role"
+                                    :options="roleOptions" 
+                                    v-model="roleValue" 
+                                    multiple=true></select-2>
+                              </div>
+                              <div class="form-group">
+                                <label for="">Queues</label>
+                                <select-2 
+                                    name="queue" 
+                                    id="queue"
+                                    :options="queueOptions" 
+                                    v-model="queueValue" 
+                                    multiple=true></select-2>
+                              </div>
+                          </div>
+                        </div> 
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
+                          <button type="button" class="btn btn-primary">Save</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                
+            </div>
+            {%endraw%}
+        </users-view>
+    </div>
+{% endblock %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/diff_match_patch.js') }}"></script>
+<script src="{{ url_for('static', filename='js/users-view.js') }}"></script>
+<script src="{{ url_for('static', filename='js/select-2.js') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
 {% endblock %}

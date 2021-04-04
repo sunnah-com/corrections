@@ -137,11 +137,11 @@ Vue.component('correction-view', {
     checkDiff: function () {
       if (this.originalHadith == null || this.correction == null) return;
 
-      const dmp = new diff_match_patch();
-      this.diff = dmp.diff_prettyHtml(dmp.diff_main(
-        this.originalHadith[correction.attr],
-        this.correction.val
-      )).replaceAll('&para;<br>', '<br/>');
+      let originalVal = this.originalHadith[this.correction.attr] || '';
+      let correctedVal = this.correction.val;
+      let dmp = new diff_match_patch();
+      let diff = dmp.diff_main(originalVal, correctedVal);
+      this.diff = dmp.diff_prettyHtml(diff).replaceAll('&para;<br>', '<br/>');
     },
     changeQueue: function (queueName) {
       this.queueName = queueName;

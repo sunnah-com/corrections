@@ -173,7 +173,7 @@ def resolve_correction(queue_name, correction_id):
         return jsonify(
             create_response_message(
                 False,
-                'Please provide valid action param "reject", "skip", or "approve" and "corrected_val" param',
+                'Please provide valid action param "reject", "skip", or "approve" and "corrected_val" param.',
             )
         )
 
@@ -209,7 +209,7 @@ def resolve_correction(queue_name, correction_id):
         return jsonify(
             create_response_message(
                 False,
-                'Please provide valid action param "reject", "skip", or "approve"',
+                'Please provide valid action param "reject", "skip", or "approve".',
             )
         )
 
@@ -281,11 +281,11 @@ def approve_correction(
                            email_template, corrected_val)
             return jsonify(
                 create_response_message(
-                    True, "Successfully updated hadith text")
+                    True, "Successfully updated hadith text.")
             )
         else:
             return jsonify(
-                create_response_message(False, "Failed to update hadith text")
+                create_response_message(False, "Failed to update hadith text.")
             )
 
     except ClientError as e:
@@ -422,7 +422,7 @@ def archive_correction(
 def not_found(correction_id):
     return jsonify(
         create_response_message(
-            False, f'Correction with id "{correction_id}" not found'
+            False, f'Correction with id "{correction_id}" not found.'
         )
     )
 

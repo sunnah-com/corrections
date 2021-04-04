@@ -75,7 +75,7 @@ Vue.component('correction-view', {
       try {
         this.correction = await this.fetchJsonData(`/corrections/${this.queueName}`);
         if (!this.correction) {
-          this.message = 'No more corrections';
+          this.message = 'No more corrections.';
         }
         else {
           this.message = null;
@@ -122,7 +122,7 @@ Vue.component('correction-view', {
         }
       }
       catch (err) {
-        this.errors.push('Error loading Hadith.');
+        this.errors.push('Error loading hadith.');
       }
     },
     getQueues: async function () {
@@ -131,7 +131,7 @@ Vue.component('correction-view', {
         this.queues = result
       }
       catch (err) {
-        this.errors.push('Error fetching Queues.');
+        this.errors.push('Error fetching queues.');
       }
     },
     checkDiff: function () {

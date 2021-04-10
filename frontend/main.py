@@ -128,6 +128,7 @@ def get_correction(queue_name):
                     UpdateExpression="SET version = :v2, lastAssigned = :t1",
                     ConditionExpression="version = :v1",
                 )
+                correction["urn"] = int(correction["urn"])
                 correction["version"] = int(correction["version"])
                 correction["lastAssigned"] = now
             except ClientError as e:
@@ -343,8 +344,10 @@ def save_correction_to_hadith_table(urn: int, val: str, attr: str):
     cursor = conn.cursor()
     query = "UPDATE bukhari_english SET {attr} = %(val)s WHERE englishURN = %(urn)s".format(
         attr=attr)
+    print(f"Executing {query}, urn={urn}, val={val}")
     cursor.execute(query, {"val": val, "urn": urn})
     rows_affected = cursor.rowcount
+    print(f"Affected ", rows_affected, "rows")
     conn.commit()
     conn.close()
     return rows_affected

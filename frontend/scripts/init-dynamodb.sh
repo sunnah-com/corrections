@@ -5,7 +5,7 @@ aws dynamodb create-table --table-name HadithCorrections \
    --endpoint-url http://dynamodb-local:8000 --region us-west-2
 
 aws dynamodb create-table --table-name HadithCorrectionsArchive \
-   --attribute-definitions AttributeName=urn,AttributeType=S AttributeName=id,AttributeType=S \
+   --attribute-definitions AttributeName=urn,AttributeType=N AttributeName=id,AttributeType=S \
    --key-schema AttributeName=urn,KeyType=HASH AttributeName=id,KeyType=RANGE \
    --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
    --endpoint-url http://dynamodb-local:8000 --region us-west-2
@@ -27,7 +27,7 @@ do
          "S":"'"$ID:abcdef$i"'"
       },
       "urn":{
-         "S":"10"
+         "N":"10"
       },
       "attr":{
          "S":"body"
@@ -61,7 +61,7 @@ aws dynamodb put-item --table-name HadithCorrectionsArchive --item '{
       "S":"1234:ghijk99"
    },
    "urn":{
-      "S":"50"
+      "N":"50"
    },
    "attr":{
       "S":"body"

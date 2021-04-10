@@ -263,12 +263,12 @@ def approve_correction(
         if not correction:
             return not_found(correction_id)
 
-        attribute = contruct_correction_attribute(
+        attribute = map_hadith_attr(
             correction["attr"]
         )
         if not attribute:
             return invalid_attribute(correction_id)
-        
+
         rows_affected = save_correction_to_hadith_table(
             correction["urn"], corrected_val, attribute
         )
@@ -303,17 +303,13 @@ def approve_correction(
         return jsonify(create_response_message(False, "Error - " + str(exception)))
 
 
-def contruct_correction_attribute(attribute: str):
-    switcher = {
+def map_hadith_attr(attr: str):
+    attr_map = {
         "body": "hadithText",
-        "grade": "grade",
     }
-    res = switcher.get(attribute, "")
-    if res == "":
-        return None
-    return res
+    return attr_map.get(attr, attr)
 
-  
+
 def get_dynamo_db():
     dynamodb = boto3.resource(
         "dynamodb",
@@ -342,11 +338,12 @@ def send_email(
     )
 
 
-def save_correction_to_hadith_table(urn: int, corrected_val: str, attribute: str):
+def save_correction_to_hadith_table(urn: int, val: str, attr: str):
     conn = pymysql.connect(**MYSQL_PROPS)
     cursor = conn.cursor()
-    query = "UPDATE bukhari_english SET {attr} = %(corrected_val)s WHERE englishURN = %(urn)s".format(attr = attribute)
-    cursor.execute(query, {"corrected_val": corrected_val, "urn": urn})
+    query = "UPDATE bukhari_english SET {attr} = %(val)s WHERE englishURN = %(urn)s".format(
+        attr=attr)
+    cursor.execute(query, {"val": val, "urn": urn})
     rows_affected = cursor.rowcount
     conn.commit()
     conn.close()
@@ -445,6 +442,7 @@ def not_found(correction_id):
             False, f'Correction with id "{correction_id}" not found.'
         )
     )
+
 
 def invalid_attribute(correction_id):
     return jsonify(

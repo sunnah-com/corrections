@@ -5,10 +5,10 @@ from decimal import Decimal
 import boto3
 import pymysql.cursors
 from botocore.exceptions import ClientError
-
 from flask import Blueprint, jsonify, request
-from lib.auth import aws_auth
+
 from lib.app import app
+from lib.auth import aws_auth
 from lib.data.archive_item import ArchiveItem
 from lib.data.archive_repository import ArchiveRepository
 
@@ -19,11 +19,11 @@ MYSQL_PROPS = {
     "db": app.config["MYSQL_DATABASE"],
 }
 
-corrections = Blueprint('corrections', __name__,
-                        template_folder='../templates')
+corrections_blueprint = Blueprint('corrections', __name__,
+                                  template_folder='../templates')
 
 
-@corrections.route("/corrections/<string:queue_name>", methods=["GET"])
+@corrections_blueprint.route("/corrections/<string:queue_name>", methods=["GET"])
 @aws_auth.authentication_required
 def get_correction(queue_name):
     table = get_correction_table()
@@ -87,7 +87,7 @@ def get_correction(queue_name):
     return jsonify(correction)
 
 
-@corrections.route("/corrections/<string:queue_name>/<string:correction_id>", methods=["POST"])
+@corrections_blueprint.route("/corrections/<string:queue_name>/<string:correction_id>", methods=["POST"])
 @aws_auth.authentication_required
 def resolve_correction(queue_name, correction_id):
     data = request.json

@@ -1,31 +1,15 @@
-from datetime import datetime, timedelta
-from functools import wraps
 from pathlib import Path
 
 import requests
-from flask import jsonify, make_response, redirect, render_template, request
+from flask import jsonify, render_template, request
 from werkzeug.exceptions import NotFound
 
-from extensions import mail
 from lib.app import app
-from lib.auth import aws_auth
-from lib.mail import EMail
+from lib.auth import aws_auth, ensure_signin
 
 LOGOUT_URL = f"https://{app.config['AWS_COGNITO_DOMAIN']}/logout?client_id={app.config['AWS_COGNITO_USER_POOL_CLIENT_ID']}&logout_uri={app.config['AWS_COGNITO_LOGOUT_URL']}"
 
 ALL_QUEUES = app.config["QUEUES"]
-
-
-def ensure_signin(view):
-    @ wraps(view)
-    def decorated(*args, **kwargs):
-        access_token = request.cookies.get("access_token")
-        if access_token == None:
-            return redirect("/sign_in")
-
-        return view(access_token, *args, **kwargs)
-
-    return decorated
 
 
 @ app.route("/", methods=["GET"])
@@ -37,7 +21,7 @@ def home(access_token):
         "index.html",
         access_token=access_token,
         username=username,
-        LOGOUT_URL=LOGOUT_URL,
+        logout_url=LOGOUT_URL,
         queue_name=ALL_QUEUES[0],
         email_template=Path('templates/email.html').read_text()
     )
@@ -82,51 +66,6 @@ def get_queues():
     queues = [{"name": name} for name in ALL_QUEUES]
     return jsonify(queues)
 
-
-@app.route("/logout")
-def logout():
-    response = make_response(redirect("/"))
-    response.set_cookie("username", "", expires=0)
-    response.set_cookie("access_token", "", expires=0)
-    return response
-
-
-@app.route("/aws_cognito_redirect")
-def aws_cognito_redirect():
-    access_token = aws_auth.get_access_token(request.args)
-    response = make_response(redirect("/"))
-    expires = datetime.utcnow() + timedelta(minutes=10)
-    aws_auth.token_service.verify(access_token)
-    response.set_cookie(
-        "username",
-        aws_auth.token_service.claims["username"],
-        expires=expires,
-        httponly=True,
-    )
-    response.set_cookie("access_token", access_token,
-                        expires=expires, httponly=True)
-    return response
-
-
-@app.route("/sign_in")
-def sign_in():
-    return redirect(aws_auth.get_sign_in_url())
-
-
-def extensions(app):
-    """
-    Register 0 or more extensions (mutates the app passed in).
-
-    :param app: Flask application instance
-    :return: None
-    """
-    mail.init_app(app)
-
-    return None
-
-
-with app.app_context():
-    extensions(app)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")

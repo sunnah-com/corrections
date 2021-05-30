@@ -4,8 +4,8 @@ import requests
 from flask import jsonify, render_template, request
 from werkzeug.exceptions import NotFound
 
-from lib.app import app
-from lib.auth import aws_auth, ensure_signin
+from app import app
+from auth import aws_auth, ensure_signin
 
 LOGOUT_URL = f"https://{app.config['AWS_COGNITO_DOMAIN']}/logout?client_id={app.config['AWS_COGNITO_USER_POOL_CLIENT_ID']}&logout_uri={app.config['AWS_COGNITO_LOGOUT_URL']}"
 

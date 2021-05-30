@@ -4,12 +4,12 @@ from functools import wraps
 from flask import Blueprint, make_response, redirect, request
 from flask_awscognito import AWSCognitoAuthentication
 
-from lib.app import app
+from app import app
 
 aws_auth = AWSCognitoAuthentication(app)
 
 auth_blueprint = Blueprint('auth', __name__,
-                           template_folder='../templates')
+                           template_folder='templates')
 
 
 def ensure_signin(view):

@@ -7,8 +7,8 @@ import pymysql.cursors
 from botocore.exceptions import ClientError
 from flask import Blueprint, jsonify, request
 
-from lib.app import app
-from lib.auth import aws_auth
+from app import app
+from auth import aws_auth
 from lib.data.archive_item import ArchiveItem
 from lib.data.archive_repository import ArchiveRepository
 
@@ -20,7 +20,7 @@ MYSQL_PROPS = {
 }
 
 corrections_blueprint = Blueprint('corrections', __name__,
-                                  template_folder='../templates')
+                                  template_folder='templates')
 
 
 @corrections_blueprint.route("/corrections/<string:queue_name>", methods=["GET"])

@@ -1,18 +1,20 @@
-import requests
-import time
 from datetime import datetime, timedelta
-from extensions import mail
 from functools import wraps
-from lib.mail import EMail
 from pathlib import Path
+
+import requests
+from flask import jsonify, make_response, redirect, render_template, request
 from werkzeug.exceptions import NotFound
+
+from extensions import mail
 from lib.app import app
 from lib.auth import aws_auth
-from flask import jsonify, make_response, redirect, render_template, request
+from lib.mail import EMail
 
 LOGOUT_URL = f"https://{app.config['AWS_COGNITO_DOMAIN']}/logout?client_id={app.config['AWS_COGNITO_USER_POOL_CLIENT_ID']}&logout_uri={app.config['AWS_COGNITO_LOGOUT_URL']}"
 
 ALL_QUEUES = app.config["QUEUES"]
+
 
 def ensure_signin(view):
     @ wraps(view)
@@ -121,19 +123,6 @@ def extensions(app):
     mail.init_app(app)
 
     return None
-
-
-def reset_correction(correction):
-    # format of id is timestamp:aws_request_id where first part is date and second part is random string
-    reset_fields = ["id", "version", "lastAssigned"]
-    if "id" in reset_fields:
-        aws_request_id = next(iter(correction["id"].split(":", 1)[1:]), "")
-        correction["id"] = f"{time.time()}:{aws_request_id}"
-    if "version" in reset_fields:
-        correction["version"] = 0
-    if "lastAssigned" in reset_fields:
-        correction.pop("lastAssigned", None)
-    return correction
 
 
 with app.app_context():

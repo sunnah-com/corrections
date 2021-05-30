@@ -1,10 +1,13 @@
+import time
+from datetime import datetime, timedelta
+from decimal import Decimal
+
 import boto3
 import pymysql.cursors
 from botocore.exceptions import ClientError
-from lib.auth import aws_auth
-from datetime import datetime, timedelta
-from decimal import Decimal
+
 from flask import Blueprint, jsonify, request
+from lib.auth import aws_auth
 from lib.app import app
 from lib.data.archive_item import ArchiveItem
 from lib.data.archive_repository import ArchiveRepository
@@ -327,6 +330,19 @@ def archive_correction(
         return jsonify(create_response_message(False, e.response["Error"]["Message"]))
 
     return jsonify(create_response_message(True, "Success"))
+
+
+def reset_correction(correction):
+    # format of id is timestamp:aws_request_id where first part is date and second part is random string
+    reset_fields = ["id", "version", "lastAssigned"]
+    if "id" in reset_fields:
+        aws_request_id = next(iter(correction["id"].split(":", 1)[1:]), "")
+        correction["id"] = f"{time.time()}:{aws_request_id}"
+    if "version" in reset_fields:
+        correction["version"] = 0
+    if "lastAssigned" in reset_fields:
+        correction.pop("lastAssigned", None)
+    return correction
 
 
 def not_found(correction_id):

@@ -4,6 +4,8 @@ Vue.component('correction-view', {
     return {
       message: '',
       errors: [],
+      success: false,
+      loading: true,
       correction: '',
       originalHadith: null,
       queueName: this.queue,
@@ -39,7 +41,7 @@ Vue.component('correction-view', {
       this.addModeratorComment = false;
       this.errors.splice(0, this.errors.length);
       this.correction = null;
-      this.loading = false;
+      this.loading = true;
       this.originalHadith = null;
       this.diff = null;
     },
@@ -51,39 +53,32 @@ Vue.component('correction-view', {
     },
     fetchJsonData: async function (url, body) {
       this.loading = true;
-      let resp = null;
-      try {
-        resp = await fetch(url, {
-          method: body ? 'POST' : 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `token ${this.token}`,
-          },
-          body: body ? JSON.stringify(body) : null
-        })
-        if (resp.ok) {
-          return resp.json();
-        }
-      }
-      finally {
+    
+      return await fetch(url, {
+        method: body ? 'POST' : 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `token ${this.token}`,
+        },
+        body: body ? JSON.stringify(body) : null
+      }).then(res =>  { 
         this.loading = false;
-      }
-      throw new Error(`Http status ${resp.status}`);
+        if (!res.ok) throw new Error(`Http status ${res.status}`);
+       
+        return res.json()
+      });
     },
     loadNextCorrection: async function () {
       this.reset();
-      try {
-        this.correction = await this.fetchJsonData(`/corrections/${this.queueName}`);
-        if (!this.correction) {
-          this.message = 'No more corrections.';
-        }
-        else {
-          this.message = null;
-        }
-      }
-      catch (err) {
+
+      await this.fetchJsonData(`/corrections/${this.queueName}`).then(res => {
+        if(!res) this.message = 'No more corrections.';
+
+        this.correction = res;
+        this.message = null;
+      }).catch(err => {
         this.errors.push('Error loading correction.');
-      }
+      })
     },
     downloadHadith: async function (hadithUrn) {
       try {
@@ -172,13 +167,17 @@ Vue.component('correction-view', {
       });
     },
     execAction: async function (action, data = {}) {
+      this.loading = true
+
       try {
         const postData = Object.assign({
           action: action
         }, data)
         const result = await this.fetchJsonData(`/corrections/${this.queueName}/${this.correction.id}`, postData);
         this.message = result.message
-        if (result.success) {
+        this.success = result.success
+
+        if (this.success) {
           this.loadNextCorrection();
         }
       }

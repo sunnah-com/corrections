@@ -1,9 +1,8 @@
 import time
-from datetime import datetime, timedelta
-from decimal import Decimal
-
 import boto3
 import pymysql.cursors
+from datetime import datetime, timedelta
+from decimal import Decimal
 from botocore.exceptions import ClientError
 from flask import Blueprint, jsonify, request
 
@@ -20,10 +19,10 @@ MYSQL_PROPS = {
 }
 
 corrections_blueprint = Blueprint('corrections', __name__,
-                                  template_folder='templates')
+                                  template_folder='templates', url_prefix='/corrections')
 
 
-@corrections_blueprint.route("/corrections/<string:queue_name>", methods=["GET"])
+@corrections_blueprint.route("/<string:queue_name>", methods=["GET"])
 @aws_auth.authentication_required
 def get_correction(queue_name):
     table = get_correction_table()
@@ -87,7 +86,7 @@ def get_correction(queue_name):
     return jsonify(correction)
 
 
-@corrections_blueprint.route("/corrections/<string:queue_name>/<string:correction_id>", methods=["POST"])
+@corrections_blueprint.route("/<string:queue_name>/<string:correction_id>", methods=["POST"])
 @aws_auth.authentication_required
 def resolve_correction(queue_name, correction_id):
     data = request.json
@@ -133,7 +132,7 @@ def resolve_correction(queue_name, correction_id):
         return jsonify(
             create_response_message(
                 False,
-                'Please provide valid action param "reject", "skip", or "approve".',
+                'Please provide valid action param "reject", "skip", or "approve"',
             )
         )
 
@@ -182,7 +181,7 @@ def approve_correction(
                            email_template, corrected_val)
             return jsonify(
                 create_response_message(
-                    True, "Successfully updated hadith")
+                    True, "Successfully Updated Hadith")
             )
         else:
             return jsonify(
@@ -290,7 +289,7 @@ def skip_correction(queue_name, correction_id, version, username):
     try:
         correction = reset_correction(correction)
         get_correction_table().put_item(Item=correction)
-        return jsonify(create_response_message(True, "Success"))
+        return jsonify(create_response_message(True, "Successfully Deleted Correction"))
     except ClientError as e:
         return jsonify(create_response_message(False, e.response["Error"]["Message"]))
 
@@ -329,7 +328,7 @@ def archive_correction(
     except ClientError as e:
         return jsonify(create_response_message(False, e.response["Error"]["Message"]))
 
-    return jsonify(create_response_message(True, "Success"))
+    return jsonify(create_response_message(True, "Successfully Rejected Correction"))
 
 
 def reset_correction(correction):

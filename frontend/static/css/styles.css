@@ -392,6 +392,6 @@ ul {
 
 /* Flash Messages */
 .flash-messages{
-  margin: 10px auto;
-  width: 50%;
+  margin: 0 auto;
+  width: 100%;
 }

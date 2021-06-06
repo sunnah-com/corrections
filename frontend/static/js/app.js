@@ -53,32 +53,39 @@ Vue.component('correction-view', {
     },
     fetchJsonData: async function (url, body) {
       this.loading = true;
-    
-      return await fetch(url, {
-        method: body ? 'POST' : 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `token ${this.token}`,
-        },
-        body: body ? JSON.stringify(body) : null
-      }).then(res =>  { 
+      let resp = null
+      try {
+        resp = await fetch(url, {
+          method: body ? 'POST' : 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `token ${this.token}`,
+          },
+          body: body ? JSON.stringify(body) : null
+        })
+        if (resp.ok) {
+          return resp.json();
+        }
+      } 
+      finally {
         this.loading = false;
-        if (!res.ok) throw new Error(`Http status ${res.status}`);
-       
-        return res.json()
-      });
+      }
+      throw new Error(`Http status ${resp.status}`);
     },
     loadNextCorrection: async function () {
       this.reset();
-
-      await this.fetchJsonData(`/corrections/${this.queueName}`).then(res => {
-        if(!res) this.message = 'No more corrections.';
-
-        this.correction = res;
-        this.message = null;
-      }).catch(err => {
+      try {
+        this.correction = await this.fetchJsonData(`/corrections/${this.queueName}`);
+        if (!this.correction) {
+          this.message = 'No more corrections.';
+        }
+        else {
+          this.message = null;
+        }
+      }
+      catch (err) {
         this.errors.push('Error loading correction.');
-      })
+      }
     },
     downloadHadith: async function (hadithUrn) {
       try {

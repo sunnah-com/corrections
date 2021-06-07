@@ -10,7 +10,11 @@
   
   <div class="container">
     
-    {{ message }}
+    <div id="flash-messages" class="flash-messages row sm-margin-top" v-if="message != null && message != '' ">  
+      <div class="alert" :class="success ? 'alert-success' : 'alert-error'"  role="alert">
+        {{message}}
+      </div>
+    </div>
     
     <section class="topActionBar">
       <div class="dropdown">
@@ -25,14 +29,9 @@
       </div>
     </section>
     
-    <div>
-      <div class="row">
-        <div class="col">
-          <p v-if="loading">Loading...</p>
-          <p v-for="error in errors">
-            {{ error }}
-          </p>
-        </div>
+    <div class="d-flex justify-content-center" v-if="loading">
+      <div class="spinner-grow m-5" style="width: 3rem; height: 3rem;" role="status" >
+      <span class="sr-only">Loading...</span>
       </div>
     </div>
     
@@ -104,7 +103,7 @@
     </div>
   </div>
   
-  <section class="previewSection">
+  <section class="previewSection" v-if="!loading && correction != null && originalHadith">
     <div class="previewSection__content">
       <h3 class="previewSection__title">Preview</h3>
       <div class="item" v-if="correction != null && originalHadith != null">

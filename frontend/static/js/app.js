@@ -4,6 +4,8 @@ Vue.component('correction-view', {
     return {
       message: '',
       errors: [],
+      success: false,
+      loading: true,
       correction: '',
       originalHadith: null,
       queueName: this.queue,
@@ -39,7 +41,7 @@ Vue.component('correction-view', {
       this.addModeratorComment = false;
       this.errors.splice(0, this.errors.length);
       this.correction = null;
-      this.loading = false;
+      this.loading = true;
       this.originalHadith = null;
       this.diff = null;
     },
@@ -51,7 +53,7 @@ Vue.component('correction-view', {
     },
     fetchJsonData: async function (url, body) {
       this.loading = true;
-      let resp = null;
+      let resp = null
       try {
         resp = await fetch(url, {
           method: body ? 'POST' : 'GET',
@@ -64,7 +66,7 @@ Vue.component('correction-view', {
         if (resp.ok) {
           return resp.json();
         }
-      }
+      } 
       finally {
         this.loading = false;
       }
@@ -172,13 +174,17 @@ Vue.component('correction-view', {
       });
     },
     execAction: async function (action, data = {}) {
+      this.loading = true
+
       try {
         const postData = Object.assign({
           action: action
         }, data)
         const result = await this.fetchJsonData(`/corrections/${this.queueName}/${this.correction.id}`, postData);
         this.message = result.message
-        if (result.success) {
+        this.success = result.success
+
+        if (this.success) {
           this.loadNextCorrection();
         }
       }

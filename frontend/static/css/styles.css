@@ -365,3 +365,33 @@ ul {
 .topActionBar .actionButton--dropdown {
   background: white;
 }
+
+
+/* Bootstrap overrides
+-------------------------------------------------- */
+.alert {
+  width: 100% !important;
+  text-align: center;
+}
+
+.alert-small {
+  padding: 5px;
+  margin-bottom: 0;
+}
+
+.alert-error, .alert-message {
+  color: #a94442;
+  background-color: #f2dede;
+  border-color: #ebccd1;
+}
+
+.alert-error hr, .alert-message hr {
+  border-top-color: #e4b9c0;
+}
+
+
+/* Flash Messages */
+.flash-messages{
+  margin: 0 auto;
+  width: 100%;
+}

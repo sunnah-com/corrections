@@ -15,13 +15,12 @@ class TestArchiveRepository(unittest.TestCase):
         item = ArchiveItem(
             "global",
             "1",
-            "1",
+            1,
             "hadithText",
             "Content",
             "comment",
             "me@email.com",
             "me@email.com",
-            "ok",
             "corrected value",
             False,
             now,
@@ -31,7 +30,7 @@ class TestArchiveRepository(unittest.TestCase):
         assert item.serialize() == {
             "queue": "global",
             "id": "1",
-            "urn": "1",
+            "urn": 1,
             "attr": "hadithText",
             "val": "Content",
             "comment": "comment",
@@ -47,7 +46,7 @@ class TestArchiveRepository(unittest.TestCase):
         data = {
             "queue": "global",
             "id": "1",
-            "urn": "1",
+            "urn": 1,
             "attr": "hadithText",
             "val": "Content",
             "comment": "comment",
@@ -61,7 +60,7 @@ class TestArchiveRepository(unittest.TestCase):
         item = ArchiveItem.deserialize(data)
         assert item.queue == "global"
         assert item.id == "1"
-        assert item.urn == "1"
+        assert item.urn == 1
         assert item.attr == "hadithText"
         assert item.val == "Content"
         assert item.comment == "comment"
@@ -78,9 +77,9 @@ class TestArchiveRepository(unittest.TestCase):
         self.repository.write(
             ArchiveItem(
                 "queue",
-                "id",
-                "urn",
-                "attr",
+                "1",
+                1,
+                "hadithText",
                 "val",
                 "comment",
                 "me@email.com",

@@ -8,7 +8,6 @@ RUN ./aws/install
 
 # Run the remaining app setup
 ENV PYTHONUNBUFFERED 1
-RUN mkdir /code
 WORKDIR /code
 
 # Install the dependencies

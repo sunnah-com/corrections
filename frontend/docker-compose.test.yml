@@ -4,8 +4,7 @@ services:
   corrections:
     depends_on:
       - "dynamodb-local"
-    build:
-      context: ./
+    build: .
     command: bash -c "/init-dynamodb.sh && python -m pytest"
     volumes:
       - .:/code

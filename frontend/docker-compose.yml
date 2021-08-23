@@ -1,6 +1,18 @@
 version: "3"
 
 services:
+  corrections:
+    depends_on:
+      - "dynamodb-local"
+      - "mysql-local"
+    build: .
+    command: bash -c "/init-dynamodb.sh && flask run --host=0.0.0.0"
+    volumes:
+      - .:/code
+    ports:
+      - "5500:5000"
+    env_file:
+      - .env.local
   mysql-local:
     image: mysql:5.7.22
     command: --default-authentication-plugin=mysql_native_password
@@ -15,15 +27,3 @@ services:
     container_name: dynamodb-local
     ports:
       - "8000:8000"
-  corrections:
-    depends_on:
-      - "dynamodb-local"
-      - "mysql-local"
-    build: .
-    command: bash -c "/init-dynamodb.sh && flask run --host=0.0.0.0"
-    volumes:
-      - .:/code
-    ports:
-      - "5500:5000"
-    env_file:
-      - .env.local

@@ -1,24 +1,40 @@
+#!/bin/bash
+
+if aws dynamodb list-tables \
+   --endpoint-url http://dynamodb-local:8000 --region us-west-2 |\
+   grep -q HadithCorrections; then
+   echo 'Tables already exist. Skipping initialization.'
+   exit 0
+fi
+
+echo "Creating HadithCorrections table"
 aws dynamodb create-table --table-name HadithCorrections \
    --attribute-definitions AttributeName=queue,AttributeType=S AttributeName=id,AttributeType=S \
    --key-schema AttributeName=queue,KeyType=HASH AttributeName=id,KeyType=RANGE \
    --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
-   --endpoint-url http://dynamodb-local:8000 --region us-west-2
+   --endpoint-url http://dynamodb-local:8000 --region us-west-2 \
+   &> /dev/null
 
+echo "Creating HadithCorrectionsArchive table"
 aws dynamodb create-table --table-name HadithCorrectionsArchive \
    --attribute-definitions AttributeName=urn,AttributeType=N AttributeName=id,AttributeType=S \
    --key-schema AttributeName=urn,KeyType=HASH AttributeName=id,KeyType=RANGE \
    --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
-   --endpoint-url http://dynamodb-local:8000 --region us-west-2
+   --endpoint-url http://dynamodb-local:8000 --region us-west-2 \
+   &> /dev/null
 
+echo "Creating Users table"
 aws dynamodb create-table --table-name Users \
    --attribute-definitions AttributeName=username,AttributeType=S \
    --key-schema AttributeName=username,KeyType=HASH \
    --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5 \
-   --endpoint-url http://dynamodb-local:8000 --region us-west-2
+   --endpoint-url http://dynamodb-local:8000 --region us-west-2 \
+   &> /dev/null
 
 for i in {1..10}
 do
    ID=`date +%s`
+   echo "Creating correction record #$i $ID"
    aws dynamodb put-item --table-name HadithCorrections --item '{
       "queue":{
          "S":"global"
@@ -53,6 +69,7 @@ do
    }' --endpoint-url http://dynamodb-local:8000 --region us-west-2
 done
 
+echo "Creating archive record"
 aws dynamodb put-item --table-name HadithCorrectionsArchive --item '{
    "queue":{
       "S":"global"
@@ -89,6 +106,7 @@ aws dynamodb put-item --table-name HadithCorrectionsArchive --item '{
    }
 }' --endpoint-url http://dynamodb-local:8000 --region us-west-2
 
+echo "Creating guest user"
 aws dynamodb put-item --table-name Users --item '{
     "username":{
         "S": "guest"
@@ -107,3 +125,4 @@ aws dynamodb put-item --table-name Users --item '{
         }
     }
 }' --endpoint-url http://dynamodb-local:8000 --region us-west-2
+echo "Initialization complete"

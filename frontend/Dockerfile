@@ -1,9 +1,8 @@
 FROM python:3.8-slim
 # Install aws cli
 RUN apt-get update
-RUN apt-get install curl -y
+RUN apt-get install curl unzip less -y
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-RUN apt-get install unzip -y
 RUN unzip awscliv2.zip
 RUN ./aws/install
 

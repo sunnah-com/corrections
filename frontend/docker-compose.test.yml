@@ -4,7 +4,10 @@ services:
   corrections:
     depends_on:
       - "dynamodb-local"
-    build: .
+    container_name: corrections_web
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: bash -c "/init-dynamodb.sh && python -m pytest"
     volumes:
       - .:/code
@@ -12,6 +15,6 @@ services:
       - .env.ci
   dynamodb-local:
     image: amazon/dynamodb-local:latest
-    container_name: dynamodb-local-test
+    container_name: corrections_dynamodb
     ports:
       - "8000:8000"

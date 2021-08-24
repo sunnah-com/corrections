@@ -5,7 +5,10 @@ services:
     depends_on:
       - "dynamodb-local"
       - "mysql-local"
-    build: .
+    container_name: corrections_web
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: bash -c "/init-dynamodb.sh && flask run --host=0.0.0.0"
     volumes:
       - .:/code
@@ -15,6 +18,7 @@ services:
       - .env.local
   mysql-local:
     image: mysql:5.7.22
+    container_name: corrections_mysql
     command: --default-authentication-plugin=mysql_native_password
     volumes:
       - ./data:/docker-entrypoint-initdb.d/:ro
@@ -24,6 +28,6 @@ services:
       - "3406:3306"
   dynamodb-local:
     image: amazon/dynamodb-local:latest
-    container_name: dynamodb-local
+    container_name: corrections_dynamodb
     ports:
       - "8000:8000"

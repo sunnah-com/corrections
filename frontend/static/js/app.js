@@ -3,8 +3,7 @@ Vue.component('correction-view', {
   data: function () {
     return {
       message: '',
-      errors: [],
-      success: false,
+      isError: false,
       loading: true,
       correction: '',
       originalHadith: null,
@@ -24,8 +23,8 @@ Vue.component('correction-view', {
     if (
       this.correction &&
       this.originalHadith === null &&
-      !this.loading &&
-      this.errors.length === 0
+      !this.loading && 
+      !this.isError
     ) {
       await this.downloadHadith(this.correction.urn);
       if (this.correction.val) {
@@ -39,11 +38,14 @@ Vue.component('correction-view', {
   methods: {
     reset: function () {
       this.addModeratorComment = false;
-      this.errors.splice(0, this.errors.length);
       this.correction = null;
       this.loading = true;
       this.originalHadith = null;
       this.diff = null;
+    },
+    alert: function (message, isError) {
+      this.message = message;
+      this.isError = isError;
     },
     loadOriginal: function () {
       if (this.correction && this.correction.attr && this.originalHadith) {
@@ -66,7 +68,7 @@ Vue.component('correction-view', {
         if (resp.ok) {
           return resp.json();
         }
-      } 
+      }
       finally {
         this.loading = false;
       }
@@ -77,14 +79,11 @@ Vue.component('correction-view', {
       try {
         this.correction = await this.fetchJsonData(`/corrections/${this.queueName}`);
         if (!this.correction) {
-          this.message = 'No more corrections.';
-        }
-        else {
-          this.message = null;
+          this.alert('No more corrections.', false);
         }
       }
       catch (err) {
-        this.errors.push('Error loading correction.');
+        this.alert('Error loading correction.', true);
       }
     },
     downloadHadith: async function (hadithUrn) {
@@ -124,7 +123,7 @@ Vue.component('correction-view', {
         }
       }
       catch (err) {
-        this.errors.push('Error loading hadith.');
+        this.alert('Error loading hadith.', true);
       }
     },
     getQueues: async function () {
@@ -133,7 +132,7 @@ Vue.component('correction-view', {
         this.queues = result
       }
       catch (err) {
-        this.errors.push('Error fetching queues.');
+        this.alert('Error fetching queues.', true);
       }
     },
     checkDiff: function () {
@@ -174,22 +173,19 @@ Vue.component('correction-view', {
       });
     },
     execAction: async function (action, data = {}) {
-      this.loading = true
-
       try {
         const postData = Object.assign({
           action: action
         }, data)
         const result = await this.fetchJsonData(`/corrections/${this.queueName}/${this.correction.id}`, postData);
-        this.message = result.message
-        this.success = result.success
+        this.alert(result.message, !result.success);
 
-        if (this.success) {
+        if (result.success) {
           this.loadNextCorrection();
         }
       }
       catch (err) {
-        this.errors.push(err.message);
+        this.alert(err.message, true);
       }
     }
   },

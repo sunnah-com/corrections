@@ -13,7 +13,7 @@
   <div class="container">
     
     <div id="flash-messages" class="flash-messages row sm-margin-top" v-if="message != null && message != '' ">  
-      <div class="alert" :class="success ? 'alert-success' : 'alert-error'"  role="alert">
+      <div class="alert" :class="isError ? 'alert-error' : 'alert-success'"  role="alert">
         {{message}}
       </div>
     </div>
@@ -31,8 +31,8 @@
       </div>
     </section>
     
-    <div class="d-flex justify-content-center" v-if="loading">
-      <div class="spinner-grow m-5" style="width: 3rem; height: 3rem;" role="status" >
+    <div v-if="loading">
+      <div class="spinner-border m-2 text-info" role="status">
       <span class="sr-only">Loading...</span>
       </div>
     </div>

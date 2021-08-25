@@ -20,7 +20,7 @@ MYSQL_PROPS = {
 }
 
 corrections_blueprint = Blueprint('corrections', __name__,
-                                   template_folder='templates')
+                                  template_folder='templates')
 
 
 @corrections_blueprint.route("/corrections/<string:queue_name>", methods=["GET"])
@@ -290,7 +290,7 @@ def skip_correction(queue_name, correction_id, version, username):
     try:
         correction = reset_correction(correction)
         get_correction_table().put_item(Item=correction)
-        return jsonify(create_response_message(True, "Successfully deleted correction"))
+        return jsonify(create_response_message(True, "Successfully skipped correction"))
     except ClientError as e:
         return jsonify(create_response_message(False, e.response["Error"]["Message"]))
 

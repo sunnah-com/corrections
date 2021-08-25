@@ -146,6 +146,7 @@ Vue.component('correction-view', {
     },
     changeQueue: function (queueName) {
       this.queueName = queueName;
+      this.message = '';
       this.loadNextCorrection();
     },
     accept: function () {

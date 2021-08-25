@@ -31,7 +31,7 @@ aws dynamodb create-table --table-name Users \
    --endpoint-url http://dynamodb-local:8000 --region us-west-2 \
    &> /dev/null && echo 'done'
 
-for i in {1..10}
+for i in {1..5}
 do
    ID=`date +%s`
    echo -n "Creating correction record #$i $ID..."

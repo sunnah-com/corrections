@@ -96,6 +96,11 @@ MAIL_USERNAME = 'username@gmail.com'
 MAIL_PASSWORD = 'app password generated in step 3'
 ```
 
+## How to run unit tests
+```bash
+docker-compose --file docker-compose.test.yml run corrections
+```
+
 ## Guidelines for Sending a Pull Request
 
 1. Only change one thing at a time.

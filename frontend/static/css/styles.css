@@ -160,7 +160,7 @@ ul {
 
 .hadithEditableSections__metaData {
   display: flex;
-  flex-wrap: wrap;
+  flex-flow: column;
 }
 
 .hadithEditableSections__metaItem {

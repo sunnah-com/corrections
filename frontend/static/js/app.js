@@ -55,24 +55,12 @@ Vue.component('correction-view', {
     },
     fetchJsonData: async function (url, body) {
       this.loading = true;
-      let resp = null
       try {
-        resp = await fetch(url, {
-          method: body ? 'POST' : 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `token ${this.token}`,
-          },
-          body: body ? JSON.stringify(body) : null
-        })
-        if (resp.ok) {
-          return resp.json();
-        }
+        return await fetchJsonData(this.token, url, body);
       }
       finally {
         this.loading = false;
       }
-      throw new Error(`Http status ${resp.status}`);
     },
     loadNextCorrection: async function () {
       this.reset();

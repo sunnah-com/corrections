@@ -117,9 +117,12 @@
 {% endblock %}
 
 {% block script %}
-<script
-    src="{{ url_for('static', filename='js/diff_match_patch.js') }}"></script>
-<script src="{{ url_for('static', filename='js/users-view.js') }}"></script>
-<script src="{{ url_for('static', filename='js/select-2.js') }}"></script>
-<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script type="text/javascript"
+    src="{{ url_for('static', filename='js/libs/diff_match_patch.js') }}"></script>
+<script type="text/javascript"
+    src="{{ url_for('static', filename='js/libs/select-2.js') }}"></script>
+<script type="text/javascript"
+    src="{{ url_for('static', filename='js/users-view.js') }}"></script>
+<script type="text/javascript"
+    src="{{ url_for('static', filename='js/app.js') }}"></script>
 {% endblock %}

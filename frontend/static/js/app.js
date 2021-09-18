@@ -23,7 +23,7 @@ Vue.component('correction-view', {
     if (
       this.correction &&
       this.originalHadith === null &&
-      !this.loading && 
+      !this.loading &&
       !this.isError
     ) {
       await this.downloadHadith(this.correction.urn);
@@ -77,7 +77,7 @@ Vue.component('correction-view', {
     loadNextCorrection: async function () {
       this.reset();
       try {
-        this.correction = await this.fetchJsonData(`/corrections/${this.queueName}`);
+        this.correction = await this.fetchJsonData(`/api/corrections/${this.queueName}`);
         if (!this.correction) {
           this.alert('No more corrections.', false);
         }
@@ -88,7 +88,7 @@ Vue.component('correction-view', {
     },
     downloadHadith: async function (hadithUrn) {
       try {
-        const result = await this.fetchJsonData(`/hadiths/${hadithUrn}`);
+        const result = await this.fetchJsonData(`/api/hadiths/${hadithUrn}`);
         /*
         {
         "collection": "bukhari",
@@ -128,7 +128,7 @@ Vue.component('correction-view', {
     },
     getQueues: async function () {
       try {
-        const result = await this.fetchJsonData(`/queues/`);
+        const result = await this.fetchJsonData(`/api/queues/`);
         this.queues = result
       }
       catch (err) {
@@ -178,7 +178,7 @@ Vue.component('correction-view', {
         const postData = Object.assign({
           action: action
         }, data)
-        const result = await this.fetchJsonData(`/corrections/${this.queueName}/${this.correction.id}`, postData);
+        const result = await this.fetchJsonData(`/api/corrections/${this.queueName}/${this.correction.id}`, postData);
         this.alert(result.message, !result.success);
 
         if (result.success) {

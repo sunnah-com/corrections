@@ -43,7 +43,7 @@ def archive(access_token):
     return render_template("archive.html", access_token=access_token, username=username)
 
 
-@app.route("/hadiths/<int:urn>", methods=["GET"])
+@app.route("/api/hadiths/<int:urn>", methods=["GET"])
 @aws_auth.authentication_required
 def get_hadith(urn: int):
     response = requests.get(
@@ -60,7 +60,7 @@ def get_hadith(urn: int):
         return NotFound()
 
 
-@app.route("/queues/", methods=["GET"])
+@app.route("/api/queues/", methods=["GET"])
 @aws_auth.authentication_required
 def get_queues():
     queues = [{"name": name} for name in ALL_QUEUES]

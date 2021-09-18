@@ -32,19 +32,19 @@ Vue.component('users-view', {
     }
   },
   methods: {
-    getUsers () {
+    getUsers() {
       return new Promise(resolve => {
         fetch('https://my-json-server.typicode.com/burhanahmeed/sunnah-com-mock/users', {
           method: 'GET'
         })
-        .then(response => response.json())
-        .then(response => {
-          this.users = response;
-          resolve(response);
-        })
+          .then(response => response.json())
+          .then(response => {
+            this.users = response;
+            resolve(response);
+          })
       })
     },
-    handleEditUser (selectedUser = {}) {
+    handleEditUser(selectedUser = {}) {
       this.username = selectedUser.username;
       if (selectedUser.permissions.manage_users) {
         this.roleValue.push('manage_users');
@@ -57,7 +57,7 @@ Vue.component('users-view', {
       this.showModalContent = true;
       $('#add-user-modal').modal('show');
     },
-    closeModal () {
+    closeModal() {
       this.isNewUserModal = true;
       this.showModalContent = false;
       this.username = '';
@@ -67,12 +67,12 @@ Vue.component('users-view', {
     },
   },
   computed: {
-    usersData () {
+    usersData() {
       let users = this.users;
       users = users.filter(el => {
         if (el.username.toLowerCase().indexOf(this.search.toLowerCase()) != -1) {
           return true;
-        } 
+        }
       });
       return users;
     }
@@ -83,6 +83,6 @@ Vue.component('users-view', {
     $('#add-user-modal').on('hidden.bs.modal', function (event) {
       vm.closeModal();
     })
-    
+
   }
 })

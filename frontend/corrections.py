@@ -20,10 +20,11 @@ MYSQL_PROPS = {
 }
 
 corrections_blueprint = Blueprint('corrections', __name__,
-                                  template_folder='templates')
+                                  template_folder='templates',
+                                  url_prefix='/api/corrections')
 
 
-@corrections_blueprint.route("/corrections/<string:queue_name>", methods=["GET"])
+@corrections_blueprint.route("/<string:queue_name>", methods=["GET"])
 @aws_auth.authentication_required
 def get_correction(queue_name):
     table = get_correction_table()
@@ -87,7 +88,7 @@ def get_correction(queue_name):
     return jsonify(correction)
 
 
-@corrections_blueprint.route("/corrections/<string:queue_name>/<string:correction_id>", methods=["POST"])
+@corrections_blueprint.route("/<string:queue_name>/<string:correction_id>", methods=["POST"])
 @aws_auth.authentication_required
 def resolve_correction(queue_name, correction_id):
     data = request.json

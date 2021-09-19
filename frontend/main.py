@@ -1,33 +1,31 @@
 from pathlib import Path
 
 import requests
-from flask import jsonify, render_template, request
+from flask import Blueprint, jsonify, current_app, render_template, request
 from werkzeug.exceptions import NotFound
 
-from app import app
-from auth import aws_auth, ensure_signin
+from auth import require_auth, ensure_signin
 
-LOGOUT_URL = f"https://{app.config['AWS_COGNITO_DOMAIN']}/logout?client_id={app.config['AWS_COGNITO_USER_POOL_CLIENT_ID']}&logout_uri={app.config['AWS_COGNITO_LOGOUT_URL']}"
-
-ALL_QUEUES = app.config["QUEUES"]
+main_blueprint = Blueprint('main', __name__,
+                           template_folder='templates')
 
 
-@ app.route("/", methods=["GET"])
+@ main_blueprint.route("/", methods=["GET"])
 @ ensure_signin
 def home(access_token):
-
+    logout_url = f"https://{current_app.config['AWS_COGNITO_DOMAIN']}/logout?client_id={current_app.config['AWS_COGNITO_USER_POOL_CLIENT_ID']}&logout_uri={current_app.config['AWS_COGNITO_LOGOUT_URL']}"
     username = request.cookies.get("username")
     return render_template(
         "index.html",
         access_token=access_token,
         username=username,
-        logout_url=LOGOUT_URL,
-        queue_name=ALL_QUEUES[0],
+        logout_url=logout_url,
+        queue_name=all_queues()[0],
         email_template=Path('templates/email.html').read_text()
     )
 
 
-@app.route("/users", methods=["GET"])
+@main_blueprint.route("/users", methods=["GET"])
 @ensure_signin
 def users(access_token):
 
@@ -35,7 +33,7 @@ def users(access_token):
     return render_template("users.html", access_token=access_token, username=username)
 
 
-@app.route("/archive", methods=["GET"])
+@main_blueprint.route("/archive", methods=["GET"])
 @ensure_signin
 def archive(access_token):
 
@@ -43,14 +41,14 @@ def archive(access_token):
     return render_template("archive.html", access_token=access_token, username=username)
 
 
-@app.route("/api/hadiths/<int:urn>", methods=["GET"])
-@aws_auth.authentication_required
+@main_blueprint.route("/api/hadiths/<int:urn>", methods=["GET"])
+@require_auth
 def get_hadith(urn: int):
     response = requests.get(
         f"https://api.sunnah.com/v1/hadiths/{urn}",
         headers={
             "Content-Type": "application/json",
-            "X-API-KEY": app.config.get("SUNNAH_COM_API_KEY"),
+            "X-API-KEY": current_app.config.get("SUNNAH_COM_API_KEY"),
         },
     )
 
@@ -60,12 +58,12 @@ def get_hadith(urn: int):
         return NotFound()
 
 
-@app.route("/api/queues/", methods=["GET"])
-@aws_auth.authentication_required
+@main_blueprint.route("/api/queues/", methods=["GET"])
+@require_auth
 def get_queues():
-    queues = [{"name": name} for name in ALL_QUEUES]
+    queues = [{"name": name} for name in all_queues()]
     return jsonify(queues)
 
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+def all_queues():
+    return current_app.config["QUEUES"]

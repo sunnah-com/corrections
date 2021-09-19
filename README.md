@@ -22,7 +22,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r frontend/requirements.txt
 cd frontend
-export FLASK_ENV=development FLASK_APP=main.py
+export FLASK_ENV=development FLASK_APP=app
 flask run --host=0.0.0.0
 ```
 

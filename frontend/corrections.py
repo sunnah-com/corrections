@@ -2,22 +2,16 @@ import time
 from datetime import datetime, timedelta
 from decimal import Decimal
 
+from flask import current_app
+
 import boto3
 import pymysql.cursors
 from botocore.exceptions import ClientError
 from flask import Blueprint, jsonify, request
 
-from app import app
-from auth import aws_auth
+from auth import require_auth
 from lib.data.archive_item import ArchiveItem
 from lib.data.archive_repository import ArchiveRepository
-
-MYSQL_PROPS = {
-    "user": app.config["MYSQL_USER"],
-    "password": app.config["MYSQL_PASSWORD"],
-    "host": app.config["MYSQL_HOST"],
-    "db": app.config["MYSQL_DATABASE"],
-}
 
 corrections_blueprint = Blueprint('corrections', __name__,
                                   template_folder='templates',
@@ -25,7 +19,7 @@ corrections_blueprint = Blueprint('corrections', __name__,
 
 
 @corrections_blueprint.route("/<string:queue_name>", methods=["GET"])
-@aws_auth.authentication_required
+@require_auth
 def get_correction(queue_name):
     table = get_correction_table()
 
@@ -89,7 +83,7 @@ def get_correction(queue_name):
 
 
 @corrections_blueprint.route("/<string:queue_name>/<string:correction_id>", methods=["POST"])
-@aws_auth.authentication_required
+@require_auth
 def resolve_correction(queue_name, correction_id):
     data = request.json
     if "action" not in data or (
@@ -208,8 +202,8 @@ def map_hadith_attr(attr: str):
 def get_dynamo_db():
     dynamodb = boto3.resource(
         "dynamodb",
-        endpoint_url=app.config["DYNAMODB_ENDPOINT_URL"],
-        region_name=app.config["REGION"],
+        endpoint_url=current_app.config["DYNAMODB_ENDPOINT_URL"],
+        region_name=current_app.config["REGION"],
     )
     return dynamodb
 
@@ -233,8 +227,19 @@ def send_email(
     )
 
 
+def mysql_connect():
+    props = {
+        "user": current_app.config["MYSQL_USER"],
+        "password": current_app.config["MYSQL_PASSWORD"],
+        "host": current_app.config["MYSQL_HOST"],
+        "db": current_app.config["MYSQL_DATABASE"],
+    }
+    conn = pymysql.connect(**props)
+    return conn
+
+
 def save_correction_to_hadith_table(urn: int, val: str, attr: str):
-    conn = pymysql.connect(**MYSQL_PROPS)
+    conn = mysql_connect()
     cursor = conn.cursor()
     query = "UPDATE bukhari_english SET {attr} = %(val)s WHERE englishURN = %(urn)s".format(
         attr=attr)
@@ -248,7 +253,7 @@ def save_correction_to_hadith_table(urn: int, val: str, attr: str):
 
 
 def get_correction_table():
-    return get_dynamo_db().Table(app.config["DYNAMODB_TABLE"])
+    return get_dynamo_db().Table(current_app.config["DYNAMODB_TABLE"])
 
 
 def read_correction(queue_name, correction_id, version):
@@ -306,9 +311,9 @@ def archive_correction(
     approved: bool = False,
 ):
     archive_repository = ArchiveRepository(
-        app.config["DYNAMODB_ENDPOINT_URL"],
-        app.config["REGION"],
-        app.config["DYNAMODB_TABLE_ARCHIVE"],
+        current_app.config["DYNAMODB_ENDPOINT_URL"],
+        current_app.config["REGION"],
+        current_app.config["DYNAMODB_TABLE_ARCHIVE"],
     )
 
     try:

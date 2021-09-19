@@ -1,34 +1,28 @@
 from extensions import mail
 from flask import Flask
 
-app = Flask(__name__, static_folder='static',
-            template_folder='templates')
-app.config.from_object("config.Config")
 
-from corrections import corrections_blueprint
-app.register_blueprint(corrections_blueprint)
+def create_app():
+    app = Flask(__name__, static_folder='static',
+                template_folder='templates')
+    app.config.from_object("config.Config")
 
-from users import users_blueprint
-app.register_blueprint(users_blueprint)
+    from main import main_blueprint
+    app.register_blueprint(main_blueprint)
 
-from archive import archive_blueprint
-app.register_blueprint(archive_blueprint)
+    from corrections import corrections_blueprint
+    app.register_blueprint(corrections_blueprint)
 
-from auth import auth_blueprint
-app.register_blueprint(auth_blueprint)
+    from users import users_blueprint
+    app.register_blueprint(users_blueprint)
 
+    from archive import archive_blueprint
+    app.register_blueprint(archive_blueprint)
 
-def extensions(app):
-    """
-    Register 0 or more extensions (mutates the app passed in).
+    from auth import auth_blueprint
+    app.register_blueprint(auth_blueprint)
 
-    :param app: Flask application instance
-    :return: None
-    """
+    from extensions import mail
     mail.init_app(app)
 
-    return None
-
-
-with app.app_context():
-    extensions(app)
+    return app

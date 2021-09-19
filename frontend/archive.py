@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 
-from auth import aws_auth
+from auth import require_auth
 
 archive_blueprint = Blueprint('archive', __name__,
                               template_folder='templates',
@@ -8,7 +8,7 @@ archive_blueprint = Blueprint('archive', __name__,
 
 
 @archive_blueprint.route("/", methods=["GET"])
-@aws_auth.authentication_required
+@require_auth
 def list():
     corrections = []
 

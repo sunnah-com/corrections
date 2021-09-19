@@ -184,7 +184,3 @@ Vue.component('correction-view', {
     }
   }
 });
-
-var app = new Vue({
-  el: '#app',
-});

@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="p-3">
-    <users-view inline-template>
+    <users-view inline-template token="{{ access_token }}">
         {%raw%}
         <div class="container">
             <section class="previewSection">
@@ -122,7 +122,7 @@
 <script type="text/javascript"
     src="{{ url_for('static', filename='js/libs/select-2.js') }}"></script>
 <script type="text/javascript"
-    src="{{ url_for('static', filename='js/users-view.js') }}"></script>
+    src="{{ url_for('static', filename='js/libs/utils.js') }}"></script>
 <script type="text/javascript"
-    src="{{ url_for('static', filename='js/app.js') }}"></script>
+    src="{{ url_for('static', filename='js/users.js') }}"></script>
 {% endblock %}

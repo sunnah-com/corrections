@@ -8,6 +8,9 @@ app.config.from_object("config.Config")
 from corrections import corrections_blueprint
 app.register_blueprint(corrections_blueprint)
 
+from users import users_blueprint
+app.register_blueprint(users_blueprint)
+
 from auth import auth_blueprint
 app.register_blueprint(auth_blueprint)
 

@@ -1,4 +1,5 @@
 Vue.component('users-view', {
+  props: ['token'],
   data: function () {
     return {
       gridInstance: null,
@@ -32,17 +33,8 @@ Vue.component('users-view', {
     }
   },
   methods: {
-    getUsers() {
-      return new Promise(resolve => {
-        fetch('https://my-json-server.typicode.com/burhanahmeed/sunnah-com-mock/users', {
-          method: 'GET'
-        })
-          .then(response => response.json())
-          .then(response => {
-            this.users = response;
-            resolve(response);
-          })
-      })
+    async getUsers() {
+      this.users = await fetchJsonData(this.token, '/api/users');
     },
     handleEditUser(selectedUser = {}) {
       this.username = selectedUser.username;

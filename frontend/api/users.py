@@ -4,12 +4,12 @@ from flask import Blueprint, jsonify
 
 from auth import require_auth
 
-users_blueprint = Blueprint('users', __name__,
-                            template_folder='templates',
-                            url_prefix='/api/users')
+users_api = Blueprint('users_api', __name__,
+                      template_folder='templates',
+                      url_prefix='/api/users')
 
 
-@users_blueprint.route("/", methods=["GET"])
+@users_api.route("/", methods=["GET"])
 @require_auth
 def list():
     users = [
@@ -40,7 +40,7 @@ def list():
     return jsonify(users)
 
 
-@users_blueprint.route("/<string:username>", methods=["POST"])
+@users_api.route("/<string:username>", methods=["POST"])
 @require_auth
 def update(username):
     return '', http.HTTPStatus.NO_CONTENT

@@ -7,17 +7,20 @@ def create_app():
                 template_folder='templates')
     app.config.from_object("config.Config")
 
-    from main import main_blueprint
-    app.register_blueprint(main_blueprint)
+    from main import main
+    app.register_blueprint(main)
 
-    from corrections import corrections_blueprint
-    app.register_blueprint(corrections_blueprint)
+    from api.misc import misc_api
+    app.register_blueprint(misc_api)
 
-    from users import users_blueprint
-    app.register_blueprint(users_blueprint)
+    from api.corrections import corrections_api
+    app.register_blueprint(corrections_api)
 
-    from archive import archive_blueprint
-    app.register_blueprint(archive_blueprint)
+    from api.users import users_api
+    app.register_blueprint(users_api)
+
+    from api.archive import archive_api
+    app.register_blueprint(archive_api)
 
     from auth import auth_blueprint
     app.register_blueprint(auth_blueprint)

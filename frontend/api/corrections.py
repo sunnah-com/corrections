@@ -14,12 +14,12 @@ from lib.data.archive_item import ArchiveItem
 from lib.data.archive_repository import ArchiveRepository
 from lib.utils import api_action_response
 
-corrections_blueprint = Blueprint('corrections', __name__,
-                                  template_folder='templates',
-                                  url_prefix='/api/corrections')
+corrections_api = Blueprint('corrections_api', __name__,
+                            template_folder='templates',
+                            url_prefix='/api/corrections')
 
 
-@corrections_blueprint.route("/<string:queue_name>", methods=["GET"])
+@corrections_api.route("/<string:queue_name>", methods=["GET"])
 @require_auth
 def get_correction(queue_name):
     table = get_correction_table()
@@ -83,7 +83,7 @@ def get_correction(queue_name):
     return jsonify(correction)
 
 
-@corrections_blueprint.route("/<string:queue_name>/<string:correction_id>", methods=["POST"])
+@corrections_api.route("/<string:queue_name>/<string:correction_id>", methods=["POST"])
 @require_auth
 def resolve_correction(queue_name, correction_id):
     data = request.json

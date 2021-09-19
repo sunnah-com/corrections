@@ -12,6 +12,7 @@ from flask import Blueprint, jsonify, request
 from auth import require_auth
 from lib.data.archive_item import ArchiveItem
 from lib.data.archive_repository import ArchiveRepository
+from lib.utils import api_action_response
 
 corrections_blueprint = Blueprint('corrections', __name__,
                                   template_folder='templates',
@@ -86,14 +87,13 @@ def get_correction(queue_name):
 @require_auth
 def resolve_correction(queue_name, correction_id):
     data = request.json
-    if "action" not in data or (
+    valid_action = "action" not in data or (
         data["action"] == "approve" and "corrected_val" not in data
-    ):
-        return jsonify(
-            create_response_message(
-                False,
-                'Please provide valid action param "reject", "skip", or "approve" and "corrected_val" param',
-            )
+    )
+    if valid_action:
+        return api_action_response(
+            False,
+            'Please provide valid action param "reject", "skip", or "approve" and "corrected_val" param',
         )
 
     action = data["action"]
@@ -125,11 +125,9 @@ def resolve_correction(queue_name, correction_id):
         )
 
     else:
-        return jsonify(
-            create_response_message(
-                False,
-                'Please provide valid action param "reject", "skip", or "approve".',
-            )
+        return api_action_response(
+            False,
+            'Please provide valid action param "reject", "skip", or "approve".',
         )
 
 
@@ -175,21 +173,17 @@ def approve_correction(
             if email_template:
                 send_email("approved", correction,
                            email_template, corrected_val)
-            return jsonify(
-                create_response_message(
-                    True, "Successfully updated hadith")
-            )
+            return api_action_response(
+                True, "Successfully updated hadith")
         else:
-            return jsonify(
-                create_response_message(False, "Failed to update hadith")
-            )
+            return api_action_response(False, "Failed to update hadith")
 
     except ClientError as e:
-        return jsonify(create_response_message(False, e.response["Error"]["Message"]))
+        return api_action_response(False, e.response["Error"]["Message"])
     except pymysql.Error as error:
-        return jsonify(create_response_message(False, str(error)))
+        return api_action_response(False, str(error))
     except Exception as exception:
-        return jsonify(create_response_message(False, "Error - " + str(exception)))
+        return api_action_response(False, "Error - " + str(exception))
 
 
 def map_hadith_attr(attr: str):
@@ -283,9 +277,9 @@ def move_correction(queue_name, correction_id, version, updated_queue_name):
         correction = reset_correction(correction)
         correction["queue"] = updated_queue_name
         get_correction_table().put_item(Item=correction)
-        return jsonify(create_response_message(True, "Successfully moved correction."))
+        return api_action_response(True, "Successfully moved correction.")
     except Exception as exception:
-        return jsonify(create_response_message(False, "Error - " + str(exception)))
+        return api_action_response(False, "Error - " + str(exception))
 
 
 def skip_correction(queue_name, correction_id, version, username):
@@ -296,9 +290,9 @@ def skip_correction(queue_name, correction_id, version, username):
     try:
         correction = reset_correction(correction)
         get_correction_table().put_item(Item=correction)
-        return jsonify(create_response_message(True, "Successfully skipped correction"))
+        return api_action_response(True, "Successfully skipped correction")
     except ClientError as e:
-        return jsonify(create_response_message(False, e.response["Error"]["Message"]))
+        return api_action_response(False, e.response["Error"]["Message"])
 
 
 def archive_correction(
@@ -333,9 +327,9 @@ def archive_correction(
         archive_repository.write(ArchiveItem.deserialize(entry))
         delete_correction(queue_name, correction_id, version)
     except ClientError as e:
-        return jsonify(create_response_message(False, e.response["Error"]["Message"]))
+        return api_action_response(False, e.response["Error"]["Message"])
 
-    return jsonify(create_response_message(True, "Successfully rejected correction"))
+    return api_action_response(True, "Successfully rejected correction")
 
 
 def reset_correction(correction):
@@ -352,20 +346,12 @@ def reset_correction(correction):
 
 
 def not_found(correction_id):
-    return jsonify(
-        create_response_message(
-            False, f'Correction with id "{correction_id}" not found.'
-        )
+    return api_action_response(
+        False, f'Correction with id "{correction_id}" not found.'
     )
 
 
 def invalid_attribute(correction_id):
-    return jsonify(
-        create_response_message(
-            False, f'Correction with id "{correction_id}" has invalid attribute'
-        )
+    return api_action_response(
+        False, f'Correction with id "{correction_id}" has invalid attribute'
     )
-
-
-def create_response_message(success, message):
-    return {"success": success, "message": message}

@@ -80,9 +80,9 @@ For the following configs, I have taken gmail as an example.
 1. The server is "smtp.gmail.com".
 2. The port must match the type of security used.
 
-   - If using STARTTLS with MAIL_USE_TLS = True, then use MAIL_PORT = 587.
-   - If using SSL/TLS directly with MAIL_USE_SSL = True, then use MAIL_PORT = 465.
-   - Enable either STARTTLS or SSL/TLS, not both.
+   - If using `STARTTLS` with `MAIL_USE_TLS = True`, then use `MAIL_PORT = 587`.
+   - If using `SSL/TLS` directly with `MAIL_USE_SSL = True`, then use `MAIL_PORT = 465`.
+   - Enable either `STARTTLS` or `SSL/TLS`, not both.
 
 3. Depending on your Google account's security settings, you may need to generate and use an [app password](https://security.google.com/settings/security/apppasswords) rather than the account password. This may also require enabling 2-step verification. You should probably set this up anyway.
 

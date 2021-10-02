@@ -28,10 +28,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="i in records">
-                                <td>{{i.collection}}</td>
-                                <td>{{i.hadith}}</td>
-                                <td>{{i.id}}</td>
+                            <tr v-for="record in records">
+                                <td>{{record.collection}}</td>
+                                <td>{{record.hadith}}</td>
+                                <td>{{record.id}}</td>
+                                <td>
+                                    <div class="text-center">
+                                        <a href="#"
+                                            @click="handleRevert(record)">
+                                            <i class="fas fa-undo"></i>
+                                        </a>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

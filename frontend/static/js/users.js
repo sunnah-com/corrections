@@ -49,6 +49,13 @@ Vue.component('users-view', {
       this.showModalContent = true;
       $('#add-user-modal').modal('show');
     },
+    async saveUser() {
+      await fetchJsonData(this.token, '/api/users/' + this.username, {
+        permissions: this.roleValue,
+        queues: this.queueValue
+      });
+      this.closeModal();
+    },
     closeModal() {
       this.isNewUserModal = true;
       this.showModalContent = false;

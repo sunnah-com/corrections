@@ -7,8 +7,11 @@ async function fetchJsonData(token, url, body) {
         },
         body: body ? JSON.stringify(body) : null
     })
-    if (resp.ok) {
+    if (resp.status == 204) {
+        return null;
+    }
+    else if (resp.ok) {
         return resp.json();
     }
-    throw new Error(`Http status ${resp.status}`);
+    throw new Error(`Http status ${resp.statusText}`);
 }

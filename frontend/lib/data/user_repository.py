@@ -1,16 +1,13 @@
-from typing import List
 import boto3
+from flask import current_app
 
 
-class LocalUserRepository:
+class DynamoDbUserRepository:
     def __init__(self, endpoint_url, region_name, table_name):
         dynamodb = boto3.resource(
             "dynamodb", endpoint_url=endpoint_url, region_name=region_name
         )
         self.table = dynamodb.Table(table_name)
-
-    def delete(self, username):
-        return self.table.delete_item(Key={"username": username})
 
     def put(self, username, manage_users, queues):
         return self.table.put_item(
@@ -29,43 +26,90 @@ class LocalUserRepository:
 
         data = response["Items"]
         while "LastEvaluatedKey" in response:
-            response = self.table.scan(ExclusiveStartKey=response["LastEvaluatedKey"])
+            response = self.table.scan(
+                ExclusiveStartKey=response["LastEvaluatedKey"])
             data.extend(response["Items"])
         return data
 
 
-class RemoteUserRepository:
+class CognitoUserRepository:
     """
     This will handle all the CRUD actions for users
     in the AWS cognito user pool
     """
 
-    def __init__(self, endpoint_url: str, region_name: str, identity_pool_id: str):
-        self.identity_pool_id = identity_pool_id
-        self.provider_name = (
-            f"cognito-idp.{region_name}.amazonaws.com/{identity_pool_id}"
-        )
+    def __init__(self,
+                 region_name: str,
+                 aws_access_key_id: str,
+                 aws_secret_access_key: str,
+                 user_pool_id: str):
+        self.user_pool_id = user_pool_id
         self.cognito = boto3.client(
-            "cognito-identity", endpoint_url=endpoint_url, region_name=region_name
+            "cognito-idp",
+            region_name=region_name,
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key)
+
+    def list(self) -> dict:
+        users = []
+        response = self.cognito.list_users(
+            UserPoolId=self.user_pool_id,
+            Limit=60
         )
+        pagination_token = "none"
+        while pagination_token:
+            users.extend(response["Users"])
+            pagination_token = response.get("PaginationToken")
+            if pagination_token:
+                response = self.cognito.list_users(
+                    UserPoolId=self.user_pool_id,
+                    PaginationToken=pagination_token,
+                    Limit=60
+                )
+        usernames = [user["Username"] for user in users]
+        return usernames
 
-    def get_or_create(self, username: str, password: str) -> dict:
-        return self.cognito.get_id(
-            AccountId=username,
-            IdentityPoolId=self.identity_pool_id,
-            Logins={self.provider_name: password},
-        )
 
-    def list(self, limit: int = 10, next: str = "") -> dict:
-        response = self.cognito.list_identities(
-            IdentityPoolId=self.identity_pool_id,
-            MaxResults=limit,
-            NextToken=next,
-            HideDisabled=True,
-        )
-        return response
+class UserRepository:
+    def __init__(self,
+                 dynamodb_repository: DynamoDbUserRepository,
+                 cognito_repository: CognitoUserRepository):
+        self.dynamodb_repository = dynamodb_repository
+        self.cognito_repository = cognito_repository
 
-    def delete(self, usernames: List[str]) -> dict:
-        response = self.cognito.delete_identities(IdentityIdsToDelete=usernames)
+    def put(self, username, manage_users, queues):
+        return self.dynamodb_repository.put(username, manage_users, queues)
 
-        return response
+    def get(self, username):
+        return self.dynamodb_repository.get(username)
+
+    def list(self):
+        cognito_usernames = self.cognito_repository.list()
+        dynamodb_users = self.dynamodb_repository.list()
+        users = [user for user in dynamodb_users
+                 if user.get("username") in cognito_usernames]
+        return users
+
+
+def get_cognito_repository():
+    region_name = current_app.config["REGION"]
+    user_pool_id = current_app.config["AWS_COGNITO_USER_POOL_ID"]
+    aws_access_key_id = current_app.config["AWS_ACCESS_KEY_ID"]
+    aws_secret_access_key = current_app.config["AWS_SECRET_ACCESS_KEY"]
+    repository = CognitoUserRepository(
+        region_name, aws_access_key_id, aws_secret_access_key, user_pool_id)
+    return repository
+
+
+def get_dynamodb_repository():
+    region_name = current_app.config["REGION"]
+    endpoint_url = current_app.config["DYNAMODB_ENDPOINT_URL"]
+    table_name = current_app.config["DYNAMODB_TABLE_USERS"]
+    repository = DynamoDbUserRepository(endpoint_url, region_name, table_name)
+    return repository
+
+
+def get_user_repository():
+    dynamodb_repository = get_dynamodb_repository()
+    cognito_repository = get_cognito_repository()
+    return UserRepository(dynamodb_repository, cognito_repository)

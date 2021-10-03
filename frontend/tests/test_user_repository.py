@@ -1,30 +1,48 @@
 import unittest
-from lib.data.user_repository import LocalUserRepository
+from unittest.mock import MagicMock
+
+from lib.data.user_repository import (CognitoUserRepository,
+                                      DynamoDbUserRepository, UserRepository)
 
 
 class TestUserRepository(unittest.TestCase):
     def setUp(self):
-        self.repository = LocalUserRepository(
-            "http://dynamodb-local:8000/", "us-west-2", "Users"
-        )
-
-    def test_put_user(self):
-        result = self.repository.put("test_1", True, ["testA", "testB"])
-        self.assertEqual(200, result["ResponseMetadata"]["HTTPStatusCode"])
-
-        get_response = self.repository.get("test_1")
-
-        self.assertEqual("test_1", get_response["username"])
-        self.assertTrue(get_response["permissions"]["manage_users"])
-
-    def test_get_empty(self):
-        get_response = self.repository.get("test_empty")
-        self.assertTrue(get_response is None)
+        self.mock_dynamodb_repository = DynamoDbUserRepository(
+            "http://dynamodb-local:8000/", "us-west-2", "Users")
+        self.mock_cognito_repository = CognitoUserRepository(
+            "us-west-2", "access_key", "secret", "pool_id")
+        self.repository = UserRepository(
+            self.mock_dynamodb_repository, self.mock_cognito_repository)
 
     def test_list(self):
-        self.repository.put("test_x", False, ["testA", "testB"])
-        data = self.repository.list()
-        self.assertTrue(len(data) > 0)
+        user1 = {"username": "abc"}
+        user2 = {"username": "def"}
+        self.mock_dynamodb_repository.list = MagicMock(return_value=[
+            user1,
+            user2
+        ])
+        self.mock_cognito_repository.list = MagicMock(return_value=["abc"])
+
+        result = self.repository.list()
+
+        self.assertListEqual(result, [user1])
+
+    def test_get(self):
+        self.mock_dynamodb_repository.get = MagicMock(return_value="def")
+
+        result = self.repository.get("abc")
+
+        self.mock_dynamodb_repository.get.assert_called_with("abc")
+        self.assertEqual("def", result)
+
+    def test_put(self):
+        self.mock_dynamodb_repository.put = MagicMock()
+
+        self.repository.put("abc", True, ["global"])
+
+        self.mock_dynamodb_repository.put.assert_called_with("abc",
+                                                             True,
+                                                             ["global"])
 
 
 if __name__ == "__main__":

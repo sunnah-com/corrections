@@ -1,7 +1,7 @@
 from auth import require_auth
 import http
 from flask import Blueprint, jsonify
-from lib.data.user_repository import UserRepository, get_user_repository
+from lib.data.user_repository import get_user_repository
 from auth import require_auth
 
 users_api = Blueprint('users_api', __name__,
@@ -15,6 +15,7 @@ def index():
     users = get_user_repository().list()
     for user in users:
         permissions = user["permissions"]
+        permissions["actions"] = list(permissions["actions"])
         permissions["queues"] = list(permissions["queues"])
 
     return jsonify(users)

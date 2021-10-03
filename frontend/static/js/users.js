@@ -8,8 +8,8 @@ Vue.component('users-view', {
       isNewUserModal: true,
       showModalContent: false,
       username: '',
-      roleValue: [],
-      roleOptions: [
+      selectedActions: [],
+      allActions: [
         {
           id: "manage_users",
           text: "Manage users",
@@ -19,8 +19,8 @@ Vue.component('users-view', {
           text: "View archive",
         },
       ],
-      queueValue: [],
-      queueOptions: [
+      selectedQueues: [],
+      allQueues: [
         {
           id: "global",
           text: "Global",
@@ -38,21 +38,16 @@ Vue.component('users-view', {
     },
     handleEditUser(selectedUser = {}) {
       this.username = selectedUser.username;
-      if (selectedUser.permissions.manage_users) {
-        this.roleValue.push('manage_users');
-      };
-      if (selectedUser.permissions.view_archive) {
-        this.roleValue.push('view_archive');
-      }
-      this.queueValue = selectedUser.permissions.queues;
+      this.selectedActions = selectedUser.permissions.actions;
+      this.selectedQueues = selectedUser.permissions.queues;
       this.isNewUserModal = false;
       this.showModalContent = true;
       $('#add-user-modal').modal('show');
     },
     async saveUser() {
       await fetchJsonData(this.token, '/api/users/' + this.username, {
-        permissions: this.roleValue,
-        queues: this.queueValue
+        actions: this.selectedActions,
+        queues: this.selectedQueues
       });
       this.closeModal();
     },
@@ -60,8 +55,8 @@ Vue.component('users-view', {
       this.isNewUserModal = true;
       this.showModalContent = false;
       this.username = '';
-      this.roleValue = []
-      this.queueValue = [];
+      this.selectedActions = []
+      this.selectedQueues = [];
       $('#add-user-modal').modal('hide');
     },
   },
@@ -82,6 +77,5 @@ Vue.component('users-view', {
     $('#add-user-modal').on('hidden.bs.modal', function (event) {
       vm.closeModal();
     })
-
   }
 })

@@ -22,34 +22,32 @@
                         <thead>
                             <tr>
                                 <th scope="col">Username</th>
-                                <th scope="col">Roles</th>
+                                <th scope="col">Permissions</th>
                                 <th scope="col">Queues</th>
                                 <th class="text-center" scope="col">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="i in usersData">
-                                <td>{{i.username}}</td>
+                            <tr v-for="user in usersData">
+                                <td>{{user.username}}</td>
                                 <td>
                                     <span
                                         class="badge rounded-pill bg-success text-white"
-                                        v-if="i.permissions && i.permissions.manage_users">Manage
-                                        users</span>
-                                    <span
-                                        class="badge rounded-pill bg-success text-white"
-                                        v-if="i.permissions && i.permissions.view_archive">View
-                                        archive</span>
+                                        v-for="action in user.permissions.actions">
+                                        {{action}}
+                                    </span>
                                 </td>
                                 <td>
                                     <span
                                         class="mr-1 badge rounded-pill bg-secondary text-white"
-                                        v-for="q in i.permissions.queues">
-                                        {{q}}
+                                        v-for="queue in user.permissions.queues">
+                                        {{queue}}
                                     </span>
                                 </td>
                                 <td>
                                     <div class="text-center">
-                                        <a href="#" @click="handleEditUser(i)">
+                                        <a href="#"
+                                            @click="handleEditUser(user)">
                                             <i class="far fa-edit"></i>
                                         </a>
                                     </div>
@@ -85,17 +83,17 @@
                                         class="form-control">
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Roles</label>
-                                    <select-2 name="role" id="role"
-                                        :options="roleOptions"
-                                        v-model="roleValue" multiple=true>
+                                    <label for="">Permissions</label>
+                                    <select-2 name="action" id="action"
+                                        :options="allActions"
+                                        v-model="selectedActions" multiple=true>
                                     </select-2>
                                 </div>
                                 <div class="form-group">
                                     <label for="">Queues</label>
                                     <select-2 name="queue" id="queue"
-                                        :options="queueOptions"
-                                        v-model="queueValue" multiple=true>
+                                        :options="allQueues"
+                                        v-model="selectedQueues" multiple=true>
                                     </select-2>
                                 </div>
                             </div>

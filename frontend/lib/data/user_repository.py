@@ -9,11 +9,14 @@ class DynamoDbUserRepository:
         )
         self.table = dynamodb.Table(table_name)
 
-    def put(self, username, manage_users, queues):
+    def put(self, username, actions, queues):
         return self.table.put_item(
             Item={
                 "username": username,
-                "permissions": {"manage_users": manage_users, "queues": queues},
+                "permissions": {
+                    "actions": actions,
+                    "queues": queues
+                },
             }
         )
 
@@ -77,8 +80,8 @@ class UserRepository:
         self.dynamodb_repository = dynamodb_repository
         self.cognito_repository = cognito_repository
 
-    def put(self, username, manage_users, queues):
-        return self.dynamodb_repository.put(username, manage_users, queues)
+    def put(self, username, actions, queues):
+        return self.dynamodb_repository.put(username, actions, queues)
 
     def get(self, username):
         return self.dynamodb_repository.get(username)

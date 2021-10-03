@@ -1,23 +1,22 @@
 import unittest
+from unittest.mock import Mock
 
 from lib.data.user_repository import CognitoUserRepository
-from lib.mocks import CognitoMock
 
 
 class TestCognitoUserRepository(unittest.TestCase):
     def setUp(self):
-        self.mock = CognitoMock()
         self.repository = CognitoUserRepository(
             "abc", "def", "ghi", "jkl"
         )
-        self.repository.cognito = self.mock
+        self.repository.cognito = Mock()
 
     def test_list(self):
-        self.mock.list_users_responses.append({
+        self.repository.cognito.list_users.return_value = {
             "Users": [{
                 "Username": "user1"
             }]
-        })
+        }
 
         result = self.repository.list()
 

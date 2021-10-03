@@ -11,7 +11,7 @@ users_api = Blueprint('users_api', __name__,
 
 @users_api.route("/", methods=["GET"])
 @require_auth
-def list():
+def index():
     users = [
         {
             "username": "first",

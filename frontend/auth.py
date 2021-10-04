@@ -1,42 +1,65 @@
 from datetime import datetime, timedelta
 from functools import wraps
+from http import HTTPStatus
 
-from flask import Blueprint, make_response, redirect, request
+from flask import Blueprint, make_response, redirect, request, abort
 from flask.globals import current_app
+from flask.templating import render_template
 from flask_awscognito import AWSCognitoAuthentication
+
+from lib.data.user_repository import get_user_repository
 
 auth_blueprint = Blueprint('auth', __name__,
                            template_folder='templates')
+
+ACTION_MANAGE_USERS = "manage_users"
+ACTION_VIEW_ARCHIVE = "view_archive"
 
 
 def aws_auth():
     return AWSCognitoAuthentication(current_app)
 
 
-def require_auth(view):
-    @wraps(view)
-    def decorated(*args, **kwargs):
-        authenticated_view = aws_auth().authentication_required(view)
-        return authenticated_view(*args, **kwargs)
-
-    return decorated
+def check_user_permission(action):
+    username = request.cookies.get("username")
+    return username and get_user_repository().check_permission(username, action)
 
 
-def ensure_signin(view):
-    @ wraps(view)
-    def decorated(*args, **kwargs):
-        access_token = request.cookies.get("access_token")
-        if access_token == None:
-            return redirect("/sign_in")
+def require_auth(action=""):
+    def decorator(view):
+        @wraps(view)
+        def decorated(*args, **kwargs):
+            if action and not check_user_permission(action):
+                abort(HTTPStatus.UNAUTHORIZED)
 
-        return view(access_token, *args, **kwargs)
+            authenticated_view = aws_auth().authentication_required(view)
+            return authenticated_view(*args, **kwargs)
+        return decorated
+    return decorator
 
-    return decorated
+
+def ensure_signin(action=""):
+    def decorator(view):
+        @wraps(view)
+        def decorated(*args, **kwargs):
+            access_token = request.cookies.get("access_token")
+            if access_token == None:
+                return redirect("/sign_in")
+            if action and not check_user_permission(action):
+                return redirect("/unauthorized")
+            return view(access_token, *args, **kwargs)
+        return decorated
+    return decorator
 
 
 @auth_blueprint.route("/sign_in")
 def sign_in():
     return redirect(aws_auth().get_sign_in_url())
+
+
+@auth_blueprint.route("/unauthorized")
+def no_permission():
+    return render_template("unauthorized.html"), HTTPStatus.UNAUTHORIZED
 
 
 @auth_blueprint.route("/logout")

@@ -86,6 +86,13 @@ class UserRepository:
     def get(self, username):
         return self.dynamodb_repository.get(username)
 
+    def check_permission(self, username, action):
+        user = self.dynamodb_repository.get(username)
+        if not user:
+            return False
+        permissions = user.get("permissions", {})
+        return action in permissions.get("actions", [])
+
     def list(self):
         cognito_usernames = self.cognito_repository.list()
         dynamodb_users = self.dynamodb_repository.list()

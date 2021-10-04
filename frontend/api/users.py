@@ -1,8 +1,8 @@
-from auth import require_auth
-import http
+from http import HTTPStatus
+
+from auth import ACTION_MANAGE_USERS, require_auth
 from flask import Blueprint, jsonify
 from lib.data.user_repository import get_user_repository
-from auth import require_auth
 
 users_api = Blueprint('users_api', __name__,
                       template_folder='templates',
@@ -10,7 +10,7 @@ users_api = Blueprint('users_api', __name__,
 
 
 @users_api.route("/", methods=["GET"])
-@require_auth
+@require_auth(action=ACTION_MANAGE_USERS)
 def index():
     users = get_user_repository().list()
     for user in users:
@@ -22,6 +22,6 @@ def index():
 
 
 @ users_api.route("/<string:username>", methods=["POST"])
-@ require_auth
+@ require_auth(action=ACTION_MANAGE_USERS)
 def update(username):
-    return '', http.HTTPStatus.NO_CONTENT
+    return '', HTTPStatus.NO_CONTENT

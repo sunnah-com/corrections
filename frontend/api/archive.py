@@ -1,6 +1,5 @@
+from auth import ACTION_VIEW_ARCHIVE, authenticated_api
 from flask import Blueprint, jsonify
-
-from auth import require_auth, ACTION_VIEW_ARCHIVE
 
 archive_api = Blueprint('archive_api', __name__,
                         template_folder='templates',
@@ -8,7 +7,7 @@ archive_api = Blueprint('archive_api', __name__,
 
 
 @archive_api.route("/", methods=["GET"])
-@require_auth(action=ACTION_VIEW_ARCHIVE)
+@authenticated_api(action=ACTION_VIEW_ARCHIVE)
 def index(username):
     corrections = [
         {

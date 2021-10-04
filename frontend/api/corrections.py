@@ -2,14 +2,11 @@ import time
 from datetime import datetime, timedelta
 from decimal import Decimal
 
-from flask import current_app
-
 import boto3
 import pymysql.cursors
+from auth import authenticated_api
 from botocore.exceptions import ClientError
-from flask import Blueprint, jsonify, request
-
-from auth import require_auth
+from flask import Blueprint, current_app, jsonify, request
 from lib.data.archive_item import ArchiveItem
 from lib.data.archive_repository import ArchiveRepository
 from lib.utils import api_action_response
@@ -20,7 +17,7 @@ corrections_api = Blueprint('corrections_api', __name__,
 
 
 @corrections_api.route("/<string:queue_name>", methods=["GET"])
-@require_auth()
+@authenticated_api()
 def get_correction(username, queue_name):
     table = get_correction_table()
 
@@ -84,7 +81,7 @@ def get_correction(username, queue_name):
 
 
 @corrections_api.route("/<string:queue_name>/<string:correction_id>", methods=["POST"])
-@require_auth()
+@authenticated_api()
 def resolve_correction(username, queue_name, correction_id):
     data = request.json
     valid_action = "action" not in data or (

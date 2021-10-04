@@ -24,19 +24,21 @@ def check_user_permission(username, action):
     return username and get_user_repository().check_permission(username, action)
 
 
-def require_auth(action=""):
+def authenticated_api(action=""):
     def decorator(view):
         @wraps(view)
         def decorated(*args, **kwargs):
             username = get_current_user()
-            if not username or (action and not check_user_permission(username, action)):
+            if not username:
                 abort(HTTPStatus.UNAUTHORIZED)
+            elif action and not check_user_permission(username, action):
+                abort(HTTPStatus.FORBIDDEN)
             return view(username, *args, **kwargs)
         return decorated
     return decorator
 
 
-def ensure_signin(action=""):
+def authenticated_view(action=""):
     def decorator(view):
         @wraps(view)
         def decorated(*args, **kwargs):
@@ -44,7 +46,7 @@ def ensure_signin(action=""):
             if not username:
                 return redirect("/sign_in")
             if action and not check_user_permission(username, action):
-                return redirect("/unauthorized")
+                return render_template("unauthorized.html"), HTTPStatus.FORBIDDEN
             return view(username, *args, **kwargs)
         return decorated
     return decorator
@@ -53,11 +55,6 @@ def ensure_signin(action=""):
 @auth_blueprint.route("/sign_in")
 def sign_in():
     return redirect(aws_auth().get_sign_in_url())
-
-
-@auth_blueprint.route("/unauthorized")
-def no_permission():
-    return render_template("unauthorized.html"), HTTPStatus.UNAUTHORIZED
 
 
 @auth_blueprint.route("/logout")

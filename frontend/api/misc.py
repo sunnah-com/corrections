@@ -1,5 +1,5 @@
 import requests
-from auth import require_auth
+from auth import authenticated_api
 from flask import Blueprint, current_app, jsonify
 from lib.utils import all_queues
 from werkzeug.exceptions import NotFound
@@ -10,14 +10,14 @@ misc_api = Blueprint('misc_api', __name__,
 
 
 @misc_api.route("/queues/", methods=["GET"])
-@require_auth()
+@authenticated_api()
 def get_queues(username):
     queues = [{"name": name} for name in all_queues()]
     return jsonify(queues)
 
 
 @misc_api.route("/hadiths/<int:urn>", methods=["GET"])
-@require_auth()
+@authenticated_api()
 def get_hadith(username, urn: int):
     response = requests.get(
         f"https://api.sunnah.com/v1/hadiths/{urn}",

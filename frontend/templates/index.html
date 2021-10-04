@@ -7,8 +7,7 @@
   originalEmailTemplate = {{ email_template | tojson }};
 </script>
 
-<correction-view inline-template token="{{ access_token }}"
-  queue="{{ queue_name }}">
+<correction-view inline-template queue="{{ queue_name }}">
   {% raw %}
 
   <div class="container">

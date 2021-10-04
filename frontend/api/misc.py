@@ -11,14 +11,14 @@ misc_api = Blueprint('misc_api', __name__,
 
 @misc_api.route("/queues/", methods=["GET"])
 @require_auth()
-def get_queues():
+def get_queues(username):
     queues = [{"name": name} for name in all_queues()]
     return jsonify(queues)
 
 
 @misc_api.route("/hadiths/<int:urn>", methods=["GET"])
 @require_auth()
-def get_hadith(urn: int):
+def get_hadith(username, urn: int):
     response = requests.get(
         f"https://api.sunnah.com/v1/hadiths/{urn}",
         headers={

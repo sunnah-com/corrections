@@ -1,5 +1,5 @@
 Vue.component('correction-view', {
-  props: ['token', 'queue'],
+  props: ['queue'],
   data: function () {
     return {
       message: '',
@@ -56,7 +56,7 @@ Vue.component('correction-view', {
     fetchJsonData: async function (url, body) {
       this.loading = true;
       try {
-        return await fetchJsonData(this.token, url, body);
+        return await fetchJsonData(url, body);
       }
       finally {
         this.loading = false;

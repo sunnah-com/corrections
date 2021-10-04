@@ -1,5 +1,4 @@
 Vue.component('archive-view', {
-    props: ['token'],
     data: function () {
         return {
             records: [],
@@ -8,7 +7,7 @@ Vue.component('archive-view', {
     },
     methods: {
         async getRecords() {
-            this.records = await fetchJsonData(this.token, '/api/archive');
+            this.records = await fetchJsonData('/api/archive');
         },
         async handleRevert(record) {
             // TODO: post revert to backend and reload the page

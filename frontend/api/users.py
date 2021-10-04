@@ -11,7 +11,7 @@ users_api = Blueprint('users_api', __name__,
 
 @users_api.route("/", methods=["GET"])
 @require_auth(action=ACTION_MANAGE_USERS)
-def index():
+def index(username):
     users = get_user_repository().list()
     for user in users:
         permissions = user["permissions"]

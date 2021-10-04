@@ -21,7 +21,7 @@ corrections_api = Blueprint('corrections_api', __name__,
 
 @corrections_api.route("/<string:queue_name>", methods=["GET"])
 @require_auth()
-def get_correction(queue_name):
+def get_correction(username, queue_name):
     table = get_correction_table()
 
     try_get = True
@@ -85,7 +85,7 @@ def get_correction(queue_name):
 
 @corrections_api.route("/<string:queue_name>/<string:correction_id>", methods=["POST"])
 @require_auth()
-def resolve_correction(queue_name, correction_id):
+def resolve_correction(username, queue_name, correction_id):
     data = request.json
     valid_action = "action" not in data or (
         data["action"] == "approve" and "corrected_val" not in data
@@ -99,7 +99,6 @@ def resolve_correction(queue_name, correction_id):
     action = data["action"]
     email_template = data.get("emailTemplate", "")
     version = data.get("version", 0)
-    username = request.cookies.get("username")
 
     if action == "reject":
         return reject_correction(

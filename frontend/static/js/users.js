@@ -1,5 +1,4 @@
 Vue.component('users-view', {
-  props: ['token'],
   data: function () {
     return {
       gridInstance: null,
@@ -25,7 +24,7 @@ Vue.component('users-view', {
   },
   methods: {
     async getUsers() {
-      this.users = await fetchJsonData(this.token, '/api/users');
+      this.users = await fetchJsonData('/api/users');
     },
     handleEditUser(selectedUser = {}) {
       this.username = selectedUser.username;
@@ -36,7 +35,7 @@ Vue.component('users-view', {
       $('#add-user-modal').modal('show');
     },
     async saveUser() {
-      await fetchJsonData(this.token, '/api/users/' + this.username, {
+      await fetchJsonData('/api/users/' + this.username, {
         actions: this.selectedActions,
         queues: this.selectedQueues
       });
@@ -52,7 +51,7 @@ Vue.component('users-view', {
     },
     getQueues: async function () {
       try {
-        const result = await fetchJsonData(this.token, '/api/queues/');
+        const result = await fetchJsonData('/api/queues/');
         this.allQueues = result.map(queue => ({
           id: queue["name"],
           text: queue["name"]

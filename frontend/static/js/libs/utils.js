@@ -1,9 +1,8 @@
-async function fetchJsonData(token, url, body) {
+async function fetchJsonData(url, body) {
     let resp = await fetch(url, {
         method: body ? 'POST' : 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Authorization: `token ${token}`,
         },
         body: body ? JSON.stringify(body) : null
     })

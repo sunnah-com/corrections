@@ -9,7 +9,7 @@ archive_api = Blueprint('archive_api', __name__,
 
 @archive_api.route("/", methods=["GET"])
 @require_auth(action=ACTION_VIEW_ARCHIVE)
-def index():
+def index(username):
     corrections = [
         {
             "collection": "bukhari",

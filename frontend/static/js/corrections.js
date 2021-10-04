@@ -116,7 +116,7 @@ Vue.component('correction-view', {
     },
     getQueues: async function () {
       try {
-        const result = await this.fetchJsonData(`/api/queues/`);
+        const result = await this.fetchJsonData('/api/queues/');
         this.queues = result
       }
       catch (err) {

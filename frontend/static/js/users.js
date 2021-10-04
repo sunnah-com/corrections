@@ -20,16 +20,7 @@ Vue.component('users-view', {
         },
       ],
       selectedQueues: [],
-      allQueues: [
-        {
-          id: "global",
-          text: "Global",
-        },
-        {
-          id: "secondary",
-          text: "Secondary",
-        },
-      ],
+      allQueues: []
     }
   },
   methods: {
@@ -59,6 +50,18 @@ Vue.component('users-view', {
       this.selectedQueues = [];
       $('#add-user-modal').modal('hide');
     },
+    getQueues: async function () {
+      try {
+        const result = await fetchJsonData(this.token, '/api/queues/');
+        this.allQueues = result.map(queue => ({
+          id: queue["name"],
+          text: queue["name"]
+        }));
+      }
+      catch (err) {
+        console.error("Failed to fetch queues:", err);
+      }
+    },
   },
   computed: {
     usersData() {
@@ -72,10 +75,10 @@ Vue.component('users-view', {
     }
   },
   mounted: function () {
-    const vm = this;
-    vm.getUsers();
-    $('#add-user-modal').on('hidden.bs.modal', function (event) {
-      vm.closeModal();
-    })
+    this.getUsers();
+    this.getQueues();
+    $('#add-user-modal').on('hidden.bs.modal', () => {
+      this.closeModal();
+    });
   }
 })

@@ -17,7 +17,7 @@ def home(username):
         "index.html",
         username=username,
         logout_url=logout_url,
-        queue_name=all_queues()[0],
+        queue_name=next(iter(all_queues(username)), ""),
         email_template=Path('templates/email.html').read_text()
     )
 

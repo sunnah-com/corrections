@@ -12,7 +12,7 @@ misc_api = Blueprint('misc_api', __name__,
 @misc_api.route("/queues/", methods=["GET"])
 @authenticated_api()
 def get_queues(username):
-    queues = [{"name": name} for name in all_queues()]
+    queues = [{"name": name} for name in all_queues(username)]
     return jsonify(queues)
 
 

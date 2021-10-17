@@ -20,8 +20,19 @@ def aws_auth():
     return AWSCognitoAuthentication(current_app)
 
 
-def check_user_permission(username, action):
-    return username and get_user_repository().check_permission(username, action)
+def check_action_permission(username, action):
+    repository = get_user_repository()
+    return repository.check_action_permission(username, action)
+
+
+def check_queue_permission(username, queue):
+    repository = get_user_repository()
+    return repository.check_queue_permission(username, queue)
+
+
+def ensure_queue_permission(username, queue):
+    if not check_queue_permission(username, queue):
+        abort(HTTPStatus.FORBIDDEN)
 
 
 def authenticated_api(action=""):
@@ -31,7 +42,7 @@ def authenticated_api(action=""):
             username = get_current_user()
             if not username:
                 abort(HTTPStatus.UNAUTHORIZED)
-            elif action and not check_user_permission(username, action):
+            elif action and not check_action_permission(username, action):
                 abort(HTTPStatus.FORBIDDEN)
             return view(username, *args, **kwargs)
         return decorated
@@ -45,7 +56,7 @@ def authenticated_view(action=""):
             username = get_current_user()
             if not username:
                 return redirect("/sign_in")
-            if action and not check_user_permission(username, action):
+            if action and not check_action_permission(username, action):
                 return render_template("unauthorized.html"), HTTPStatus.FORBIDDEN
             return view(username, *args, **kwargs)
         return decorated

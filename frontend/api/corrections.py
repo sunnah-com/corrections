@@ -4,7 +4,7 @@ from decimal import Decimal
 
 import boto3
 import pymysql.cursors
-from auth import authenticated_api
+from auth import authenticated_api, ensure_queue_permission
 from botocore.exceptions import ClientError
 from flask import Blueprint, current_app, jsonify, request
 from lib.data.archive_item import ArchiveItem
@@ -19,6 +19,7 @@ corrections_api = Blueprint('corrections_api', __name__,
 @corrections_api.route("/<string:queue_name>", methods=["GET"])
 @authenticated_api()
 def get_correction(username, queue_name):
+    ensure_queue_permission(username, queue_name)
     table = get_correction_table()
 
     try_get = True
@@ -83,6 +84,8 @@ def get_correction(username, queue_name):
 @corrections_api.route("/<string:queue_name>/<string:correction_id>", methods=["POST"])
 @authenticated_api()
 def resolve_correction(username, queue_name, correction_id):
+    ensure_queue_permission(username, queue_name)
+
     data = request.json
     valid_action = "action" not in data or (
         data["action"] == "approve" and "corrected_val" not in data

@@ -86,12 +86,11 @@ class UserRepository:
     def get(self, username):
         return self.dynamodb_repository.get(username)
 
-    def check_permission(self, username, action):
-        user = self.dynamodb_repository.get(username)
-        if not user:
-            return False
-        permissions = user.get("permissions", {})
-        return action in permissions.get("actions", [])
+    def check_action_permission(self, username, action):
+        return self.check_permission(username, "actions", action)
+
+    def check_queue_permission(self, username, view):
+        return self.check_permission(username, "queues", view)
 
     def list(self):
         cognito_usernames = self.cognito_repository.list()
@@ -99,6 +98,16 @@ class UserRepository:
         users = [user for user in dynamodb_users
                  if user.get("username") in cognito_usernames]
         return users
+
+    def check_permission(self, username, permission_type, key):
+        if not username:
+            return False
+        user = self.dynamodb_repository.get(username)
+        if not user:
+            return False
+        permissions = user.get("permissions", {})
+        return (is_admin_user(username) or
+                (key and key in permissions.get(permission_type, [])))
 
 
 def get_cognito_repository():
@@ -123,3 +132,7 @@ def get_user_repository():
     dynamodb_repository = get_dynamodb_repository()
     cognito_repository = get_cognito_repository()
     return UserRepository(dynamodb_repository, cognito_repository)
+
+
+def is_admin_user(username):
+    return username == current_app.config["ADMIN_USER"]

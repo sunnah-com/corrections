@@ -6,6 +6,9 @@ load_dotenv(".env.local")
 
 class Config(object):
     JSON_SORT_KEYS = False
+
+    ADMIN_USER = os.environ.get("ADMIN_USER")
+
     DYNAMODB_ENDPOINT_URL = os.environ.get("DYNAMODB_ENDPOINT_URL")
     DYNAMODB_TABLE = os.environ.get("DYNAMODB_TABLE")
     DYNAMODB_TABLE_ARCHIVE = os.environ.get("DYNAMODB_TABLE_ARCHIVE")

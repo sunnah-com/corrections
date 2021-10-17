@@ -12,11 +12,9 @@ main = Blueprint('main', __name__,
 @main.route("/", methods=["GET"])
 @authenticated_view()
 def home(username):
-    logout_url = f"https://{current_app.config['AWS_COGNITO_DOMAIN']}/logout?client_id={current_app.config['AWS_COGNITO_USER_POOL_CLIENT_ID']}&logout_uri={current_app.config['AWS_COGNITO_LOGOUT_URL']}"
-    return render_template(
+    return render_view(
         "index.html",
-        username=username,
-        logout_url=logout_url,
+        username,
         queue_name=next(iter(all_queues(username)), ""),
         email_template=Path('templates/email.html').read_text()
     )
@@ -25,10 +23,19 @@ def home(username):
 @main.route("/users", methods=["GET"])
 @authenticated_view(action=ACTION_MANAGE_USERS)
 def users(username):
-    return render_template("users.html", username=username)
+    return render_view("users.html", username)
 
 
 @main.route("/archive", methods=["GET"])
 @authenticated_view(action=ACTION_VIEW_ARCHIVE)
 def archive(username):
-    return render_template("archive.html", username=username)
+    return render_view("archive.html", username)
+
+
+def render_view(template_name, username, **context):
+    logout_url = f"https://{current_app.config['AWS_COGNITO_DOMAIN']}/logout?client_id={current_app.config['AWS_COGNITO_USER_POOL_CLIENT_ID']}&logout_uri={current_app.config['AWS_COGNITO_LOGOUT_URL']}"
+
+    return render_template(template_name,
+                           username=username,
+                           logout_url=logout_url,
+                           **context)

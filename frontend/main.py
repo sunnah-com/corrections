@@ -2,7 +2,7 @@ from pathlib import Path
 
 from flask import Blueprint, current_app, render_template
 
-from auth import authenticated_view, ACTION_MANAGE_USERS, ACTION_VIEW_ARCHIVE
+from auth import authenticated_view, ACTION_MANAGE_USERS, ACTION_VIEW_ARCHIVE, check_action_permission
 from lib.utils import all_queues
 
 main = Blueprint('main', __name__,
@@ -34,8 +34,13 @@ def archive(username):
 
 def render_view(template_name, username, **context):
     logout_url = f"https://{current_app.config['AWS_COGNITO_DOMAIN']}/logout?client_id={current_app.config['AWS_COGNITO_USER_POOL_CLIENT_ID']}&logout_uri={current_app.config['AWS_COGNITO_LOGOUT_URL']}"
-
+    view_archive = check_action_permission(
+        username, ACTION_VIEW_ARCHIVE)
+    manage_users = check_action_permission(
+        username, ACTION_MANAGE_USERS)
     return render_template(template_name,
                            username=username,
+                           view_archive=view_archive,
+                           manage_users=manage_users,
                            logout_url=logout_url,
                            **context)

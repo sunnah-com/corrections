@@ -55,12 +55,16 @@
           <li class="headerNav__item">
             <a class="headerNav__itemLink" href="/">Home</a>
           </li>
+          {% if view_archive %}
           <li class="headerNav__item">
             <a class="headerNav__itemLink" href="/archive">Archive</a>
           </li>
+          {% endif %}
+          {% if manage_users %}
           <li class="headerNav__item">
             <a class="headerNav__itemLink" href="/users">Users</a>
           </li>
+          {% endif %}
           <li class="headerNav__item headerNav__item--logout">
             <a class="headerNav__itemLink" href="{{ logout_url }}">Logout</a>
           </li>

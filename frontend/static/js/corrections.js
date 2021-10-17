@@ -64,6 +64,9 @@ Vue.component('correction-view', {
     },
     loadNextCorrection: async function () {
       this.reset();
+      if (!this.queueName) {
+        return;
+      }
       try {
         this.correction = await this.fetchJsonData(`/api/corrections/${this.queueName}`);
         if (!this.correction) {
@@ -118,6 +121,9 @@ Vue.component('correction-view', {
       try {
         const result = await this.fetchJsonData('/api/queues/');
         this.queues = result
+        if (this.queues.length == 0) {
+          this.alert("You do not have access to any queue", true);
+        }
       }
       catch (err) {
         this.alert('Error fetching queues.', true);

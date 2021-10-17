@@ -1,6 +1,5 @@
 from flask import render_template_string, current_app
 from extensions import mail
-import os
 
 
 class EMail:
@@ -46,9 +45,11 @@ class EMail:
 
         if template is not None:
             if "body" in kwargs:
-                raise Exception("You cannot have both a template and body arg.")
+                raise Exception(
+                    "You cannot have both a template and body arg.")
             elif "html" in kwargs:
-                raise Exception("You cannot have both a template and html arg.")
+                raise Exception(
+                    "You cannot have both a template and html arg.")
 
             kwargs["html"] = render_template_string(template, **ctx)
 

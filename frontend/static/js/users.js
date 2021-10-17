@@ -40,6 +40,7 @@ Vue.component('users-view', {
         queues: this.selectedQueues
       });
       this.closeModal();
+      this.getUsers();
     },
     closeModal() {
       this.isNewUserModal = true;

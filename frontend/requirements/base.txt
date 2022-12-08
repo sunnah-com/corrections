@@ -1,7 +1,7 @@
 astroid==2.4.1
 boto3==1.16.43
 botocore==1.19.43
-certifi==2020.6.20
+certifi==2022.12.7
 chardet==3.0.4
 click==7.1.2
 cognitojwt==1.2.2

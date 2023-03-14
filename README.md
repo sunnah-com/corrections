@@ -73,7 +73,7 @@ You will need an API key to access this data, which you may request by [creating
 
 ## How to setup flask mail server configs
 
-For detailed documentation on what each config mean, please vist: https://pythonhosted.org/Flask-Mail/
+For detailed documentation on what each config means, please visit: https://pythonhosted.org/Flask-Mail/.
 
 For the following configs, I have taken gmail as an example.
 
